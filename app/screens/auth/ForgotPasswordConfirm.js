@@ -6,7 +6,7 @@ import CustomButton from '../../globals/components/CustomButton';
 
 const gs = require ('../../globals/styles/GlobalStyle');
 
-const SignUpConfirm = () => {
+const ForgotPasswordConfirm = () => {
   const navigation = useNavigation();
 
   const onReturnToSignInPress = () => {
@@ -15,9 +15,9 @@ const SignUpConfirm = () => {
 
   return (
     <View style={gs.container}>
-      <Text style={gs.title}>Bienvenue sur Weekleat !</Text>
+      <Text style={gs.title}>Réinitialisation de mot de passe</Text>
 
-      <Text style={[styles.text, gs.text]}>Votre compte a bien été crée ! Cependant avant de pouvoir vous connecter, vous devez confirmer votre inscription en cliquant sur le lien envoyé à l'adresse mail que vous avez renseigné.</Text>
+      <Text style={[styles.text, gs.text]}>Votre demande de réinitialisation a bien été effectuée ! Nous vous invitons à vous rendre sur votre adresse mail afin de cliquer sur le lien qui vous a été envoyé afin de réinitialiser votre mot de passe.</Text>
 
       <CustomButton 
         label="Retourner à la connexion"
@@ -45,4 +45,4 @@ const styles = StyleSheet.create({
   }
 });
 
-export default SignUpConfirm;
+export default ForgotPasswordConfirm;

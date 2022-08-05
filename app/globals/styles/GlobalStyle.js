@@ -5,18 +5,13 @@ module.exports = StyleSheet.create({
       padding: 15,
       flex: 1
     },
-    justifyCenter: {
-      justifyContent: "center"
-    },
-    alignCenter: {
-      alignItems: "center"
-    },
     title: {
       fontSize: 30,
       color: "#DA4167",
       fontWeight: "bold",
       alignItems: "center",
-      marginVertical: 30
+      marginVertical: 30,
+      textAlign: "center"
     },
     text: {
       color: "#0B090A"

@@ -1,5 +1,6 @@
 import React, {useState} from 'react';
 import { StyleSheet, View, ScrollView } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
 
 import CustomInput from '../../globals/components/CustomInput';
 import CustomButton from '../../globals/components/CustomButton';
@@ -10,16 +11,18 @@ const SignIn = () => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
 
+  const navigation = useNavigation();
+
   const onSignInPress = () => {
     // TODO
   }
 
   const onForgotPasswordPress = () => {
-    // TODO
+    navigation.navigate("ForgotPassword");
   }
 
   const onSignUpPress = () => {
-    // TODO
+    navigation.navigate("SignUp");
   }
 
   return (

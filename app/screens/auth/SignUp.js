@@ -1,5 +1,6 @@
 import React, {useState} from 'react';
 import { StyleSheet, View, ScrollView, Text } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
 
 import CustomInputWithLabel from '../../globals/components/CustomInputWithLabel';
 import CustomButton from '../../globals/components/CustomButton';
@@ -11,8 +12,11 @@ const SignUp = () => {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
 
+  const navigation = useNavigation();
+
   const onSignUpPress = () => {
     // TODO
+    navigation.navigate("SignUpConfirm");
   }
 
   const onTermsOfUsePress = () => {
@@ -24,13 +28,14 @@ const SignUp = () => {
   }
 
   const onReturnToSignInPress = () => {
-    // TODO
+    navigation.navigate("SignIn");
   }
 
   return (
     <ScrollView>
       <View style={[gs.container, styles.container]}>
         <Text style={gs.title}>Inscription</Text>
+        
         <CustomInputWithLabel
            value={email}
            setValue={setEmail}
