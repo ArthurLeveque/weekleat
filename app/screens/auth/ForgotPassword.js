@@ -1,18 +1,20 @@
-import React, {useState} from 'react';
+import React from 'react';
 import { StyleSheet, View, Text } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
+import { useForm } from 'react-hook-form';
 
 import CustomButton from '../../globals/components/CustomButton';
 import CustomInput from '../../globals/components/CustomInput';
 
 const gs = require ('../../globals/styles/GlobalStyle');
 
+const EMAIL_REGEX = /^([a-z0-9])(([\-.]|[_]+)?([a-z0-9]+))*(@)([a-z0-9])((([-]+)?([a-z0-9]+))?)*((.[a-z]{2,3})?(.[a-z]{2,6}))$/i;
+
 const ForgotPassword = () => {
-  const [email, setEmail] = useState('');
-
   const navigation = useNavigation();
+  const {control, handleSubmit} = useForm();
 
-  const onSendResetPasswordPress = () => {
+  const onSendResetPasswordPress = (data) => {
     // TODO
     navigation.navigate("ForgotPasswordConfirm");
   }
@@ -27,15 +29,19 @@ const ForgotPassword = () => {
 
       <Text style={gs.text}>Veuillez rentrer votre adresse mail afin de réinitialiser votre mot de passe.</Text>
 
-      <CustomInput
-           value={email}
-           setValue={setEmail}
-           placeholder="Adresse e-mail"
-        />
+      <CustomInput 
+        name="email"
+        placeholder="Adresse e-mail"
+        control={control}
+        rules={{
+          required: "Ce champ est obligatoire",
+          pattern: {value: EMAIL_REGEX, message: "L'adresse mail est invalide"}
+        }}
+      />
 
       <CustomButton 
         label="Envoyer"
-        onPress={onSendResetPasswordPress}
+        onPress={handleSubmit(onSendResetPasswordPress)}
         type="primary"
       />
 

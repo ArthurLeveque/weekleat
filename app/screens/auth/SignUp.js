@@ -1,22 +1,24 @@
-import React, {useState} from 'react';
+import React from 'react';
 import { StyleSheet, View, ScrollView, Text } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
+import { useForm } from 'react-hook-form';
 
 import CustomInputWithLabel from '../../globals/components/CustomInputWithLabel';
 import CustomButton from '../../globals/components/CustomButton';
 
 const gs = require ('../../globals/styles/GlobalStyle');
 
+const EMAIL_REGEX = /^([a-z0-9])(([\-.]|[_]+)?([a-z0-9]+))*(@)([a-z0-9])((([-]+)?([a-z0-9]+))?)*((.[a-z]{2,3})?(.[a-z]{2,6}))$/i;
+
 const SignUp = () => {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
-
   const navigation = useNavigation();
+  const {control, handleSubmit, watch} = useForm();
+  const passwordValue = watch("password");
 
-  const onSignUpPress = () => {
+  const onSignUpPress = (data) => {
     // TODO
-    navigation.navigate("SignUpConfirm");
+    console.log(data)
+    // navigation.navigate("SignUpConfirm");
   }
 
   const onTermsOfUsePress = () => {
@@ -37,28 +39,40 @@ const SignUp = () => {
         <Text style={gs.title}>Inscription</Text>
         
         <CustomInputWithLabel
-           value={email}
-           setValue={setEmail}
-           label="Adresse e-mail"
+           name="email"
+           label="Adresse e-mail *"
+           control={control}
+           rules={{
+            required: "Ce champ est obligatoire",
+            pattern: {value: EMAIL_REGEX, message: "L'adresse mail est invalide"}
+          }}
         />
 
         <CustomInputWithLabel
-           value={password}
-           setValue={setPassword}
-           label="Mot de passe"
-           hidden={true}
+           name="password"
+           label="Mot de passe *"
+           hidden
+           control={control}
+           rules={{
+            required: "Ce champ est obligatoire", 
+            minLength: {value: 5, message: "Le mot de passe doit faire 5 caractères minimum"}
+          }}
         />
 
         <CustomInputWithLabel
-           value={confirmPassword}
-           setValue={setConfirmPassword}
-           label="Confirmer votre mot de passe"
-           hidden={true}
+           name="confirmPassword"
+           label="Confirmer votre mot de passe *"
+           hidden
+           control={control}
+           rules={{
+            required: "Ce champ est obligatoire",
+            validate: value => value === passwordValue || "Ce champ doit être identique au mot de passe"
+          }}
         />
 
         <CustomButton 
           label="S'inscrire"
-          onPress={onSignUpPress}
+          onPress={handleSubmit(onSignUpPress)}
           type="primary"
         />
 

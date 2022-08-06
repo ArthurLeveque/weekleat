@@ -40,7 +40,6 @@ const styles = StyleSheet.create({
     marginVertical: 30
   },
   text: {
-    color: "#0B090A",
     marginBottom: 30
   }
 });

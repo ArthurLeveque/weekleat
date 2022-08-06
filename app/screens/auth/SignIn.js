@@ -1,6 +1,7 @@
-import React, {useState} from 'react';
+import React from 'react';
 import { StyleSheet, View, ScrollView } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
+import { useForm } from 'react-hook-form';
 
 import CustomInput from '../../globals/components/CustomInput';
 import CustomButton from '../../globals/components/CustomButton';
@@ -8,12 +9,10 @@ import CustomButton from '../../globals/components/CustomButton';
 const gs = require ('../../globals/styles/GlobalStyle');
 
 const SignIn = () => {
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
-
   const navigation = useNavigation();
+  const {control, handleSubmit} = useForm();
 
-  const onSignInPress = () => {
+  const onSignInPress = (data) => {
     // TODO
   }
 
@@ -29,21 +28,25 @@ const SignIn = () => {
     <ScrollView>
       <View style={gs.container}>
         <CustomInput 
-          value={username}
-          setValue={setUsername}
+          name="email"
           placeholder="Adresse e-mail"
+          control={control}
+          rules={{required: true}}
+          showError = {false}
         />
 
         <CustomInput 
-          value={password}
-          setValue={setPassword}
+          name="password"
           placeholder="Mot de passe"
-          hidden={true}
+          hidden
+          control={control}
+          rules={{required: true}}
+          showError = {false}
         />
 
         <CustomButton 
           label="Se connecter"
-          onPress={onSignInPress}
+          onPress={handleSubmit(onSignInPress)}
           type="primary"
         />
 
