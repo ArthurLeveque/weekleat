@@ -5,6 +5,8 @@ import { useForm } from 'react-hook-form';
 
 import CustomInputWithLabel from '../../globals/components/CustomInputWithLabel';
 import CustomButton from '../../globals/components/CustomButton';
+import { auth } from '../../../firebase';
+
 
 const gs = require ('../../globals/styles/GlobalStyle');
 
@@ -16,9 +18,9 @@ const SignUp = () => {
   const passwordValue = watch("password");
 
   const onSignUpPress = (data) => {
-    // TODO
-    console.log(data)
-    // navigation.navigate("SignUpConfirm");
+    auth
+    .createUserWithEmailAndPassword(data.email, data.password)
+    .catch(error => alert(error.message))
   }
 
   const onTermsOfUsePress = () => {

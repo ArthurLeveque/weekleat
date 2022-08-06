@@ -5,6 +5,7 @@ import { useForm } from 'react-hook-form';
 
 import CustomInput from '../../globals/components/CustomInput';
 import CustomButton from '../../globals/components/CustomButton';
+import { auth } from '../../../firebase';
 
 const gs = require ('../../globals/styles/GlobalStyle');
 
@@ -13,7 +14,9 @@ const SignIn = () => {
   const {control, handleSubmit} = useForm();
 
   const onSignInPress = (data) => {
-    // TODO
+    auth
+    .signInWithEmailAndPassword(data.email, data.password)
+    .catch(error => alert(error.message))
   }
 
   const onForgotPasswordPress = () => {
