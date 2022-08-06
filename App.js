@@ -1,7 +1,12 @@
 import { StyleSheet, SafeAreaView } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
+import { initializeApp } from 'firebase/app';
+
+import firebaseConfig from './app/config/firebaseConfig';
 
 import AuthStack from './app/navigation/AuthStack';
+
+initializeApp(firebaseConfig);
 
 export default function App() {
   return (
