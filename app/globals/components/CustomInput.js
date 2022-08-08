@@ -2,7 +2,7 @@ import React from 'react';
 import { View, StyleSheet, TextInput, Text } from 'react-native';
 import { Controller } from 'react-hook-form';
 
-const CustomInput = ({control, name, rules = {}, placeholder, hidden, showError = true}) => {
+const CustomInput = ({control, name, rules = {}, placeholder, hidden, showError = true, multiline, lines}) => {
   return ( 
     <Controller
       control={control}
@@ -18,6 +18,8 @@ const CustomInput = ({control, name, rules = {}, placeholder, hidden, showError 
               placeholder={placeholder} 
               style={styles.input}
               secureTextEntry={hidden}
+              multiline={multiline}
+              numberOfLines={lines}
             />
           </View>
           {error && showError &&

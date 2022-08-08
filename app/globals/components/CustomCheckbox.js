@@ -1,25 +1,23 @@
 import React from 'react';
 import { View, StyleSheet, TextInput, Text } from 'react-native';
 import { Controller } from 'react-hook-form';
+import Checkbox from 'expo-checkbox';
 
-const CustomInputWithLabel = ({control, name, rules = {}, label, hidden, showError = true, multiline, lines}) => {
+const CustomCheckbox = ({control, name, rules = {}, label, hidden, showError = true, multiline, lines}) => {
   return ( 
     <View style={styles.container}>
-      <Text style={styles.text}>{label}</Text>
       <Controller
         control={control}
         name={name}
         rules={rules}
         render={({field: {value, onChange, onBlur}, fieldState: {error}}) => (
           <>
-            <TextInput 
+            <Checkbox
+              disabled={false}
               value={value}
-              onChangeText={onChange}
+              onValueChange={onChange}
               onBlur={onBlur}
-              style={[styles.input, {borderColor: error ? "red" : "#e8e8e8", textAlignVertical: multiline ? "top" : "center"}]}
-              secureTextEntry={hidden}
-              multiline={multiline}
-              numberOfLines={lines}
+              color={value ? "#DA4167" : false}
             />
             {error && showError &&
               <Text style={styles.errorText}>{error.message || ""}</Text>
@@ -27,6 +25,7 @@ const CustomInputWithLabel = ({control, name, rules = {}, label, hidden, showErr
           </>
         )}
       />
+      <Text style={styles.text}>{label}</Text>
     </View>
   );
 }
@@ -34,22 +33,13 @@ const CustomInputWithLabel = ({control, name, rules = {}, label, hidden, showErr
 const styles = StyleSheet.create({
   container: {
     width: "100%",
-    marginVertical: 8
-  },
-  input: {
-    backgroundColor: "white",
-    width: "100%",
-    borderColor: "#e8e8e8",
-    borderWidth: 1,
-    borderRadius: 5,
-    paddingHorizontal: 10,
-    paddingVertical: 7,
-    marginTop: 5,
-    textAlignVertical: "top"
+    marginVertical: 8,
+    flexDirection: "row"
   },
   text: {
     color: "#0B090A",
-    fontWeight: "bold"
+    fontWeight: "bold",
+    marginLeft: 8
   },
   errorText: {
     color: "red",
@@ -57,4 +47,4 @@ const styles = StyleSheet.create({
   }
 });
 
-export default CustomInputWithLabel;
+export default CustomCheckbox;
