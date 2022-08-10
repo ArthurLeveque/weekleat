@@ -9,35 +9,35 @@ const IngredientsInputRepeater = ({setIngredients}) => {
 
   const addHandler = () => {
     const addinputs = [...inputs];
-    addinputs.push({ key: '', ingredientName: '', mesurement: '', quantity: '' });
+    addinputs.push({ key: '', ingredientName: '', mesurement: 'unit', quantity: '' });
     setInputs(addinputs);
-    setIngredients(inputs)
+    setIngredients(addinputs)
   };
   const deleteHandler = (key) => {
     const _inputs = inputs.filter((input, index) => index != key);
     setInputs(_inputs);
-    setIngredients(inputs)
+    setIngredients(_inputs)
   };
   const ingredientHandler = (text, key) => {
     const _inputs = [...inputs];
     _inputs[key].ingredientName = text;
     _inputs[key].key = key;
     setInputs(_inputs);
-    setIngredients(inputs)
+    setIngredients(_inputs)
   };
   const quantityHandler = (text, key) => {
     const _inputs = [...inputs];
     _inputs[key].quantity = text;
     _inputs[key].key = key;
     setInputs(_inputs);
-    setIngredients(inputs)
+    setIngredients(_inputs)
   };
   const mesurementHandler = (text, key) => {
     const _inputs = [...inputs];
     _inputs[key].mesurement = text;
     _inputs[key].key = key;
     setInputs(_inputs);
-    setIngredients(inputs)
+    setIngredients(_inputs)
   };
 
   return (
@@ -56,12 +56,12 @@ const IngredientsInputRepeater = ({setIngredients}) => {
                 />
                 <View style={styles.inputPicker}>
                 <Picker  selectedValue={input.mesurement} onValueChange={(text) => mesurementHandler(text, key)} itemStyle={{fontWeight: "bold"}}>
-                  <Picker.Item label="Unité" value="unity" />
-                  <Picker.Item label="Cuillères à soupe" value="spoon" />
+                  <Picker.Item label="Unité" value="unité" />
+                  <Picker.Item label="Cuillères à soupe" value="cuillère(s) à soupe" />
                   <Picker.Item label="Grammes" value="gr" />
                   <Picker.Item label="Kilogrammes" value="kg" />
                   <Picker.Item label="Centilitres" value="cl" />
-                  <Picker.Item label="Litres" value="l" />
+                  <Picker.Item label="Litres" value="L" />
                 </Picker>
                 </View>
                 

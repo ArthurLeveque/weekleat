@@ -1,10 +1,14 @@
 import React, {useState} from 'react';
-import { StyleSheet, ScrollView, View, Text, TextInput } from 'react-native';
+import { StyleSheet, ScrollView, View, Text, Alert, ActivityIndicator } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { useForm } from 'react-hook-form';
-import { auth } from '../../../firebase';
+import { auth, firebase } from '../../../firebase';
 import * as ImagePicker from 'expo-image-picker';
+import axios from 'axios';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
+
+import { apiUrl } from '../../../apiConfig';
 import CustomInputWithLabel from '../../globals/components/CustomInputWithLabel';
 import CustomButton from '../../globals/components/CustomButton';
 import UploadImage from '../../globals/components/UploadImage';
@@ -16,14 +20,82 @@ const gs = require ('../../globals/styles/GlobalStyle');
 const AddRecipe = () => {
   const [image, setImage] = useState(null);
   const [ingredients, setIngredients] = useState();
+  const [ingredientsErrors, setIngredientsErrors] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const navigation = useNavigation();
   const {control, handleSubmit} = useForm();
 
-  const onAddPress = (data) => {
-    //TODO
-    data.ingredients = ingredients;
-    console.log(data)
+  const onAddPress = async (data) => {
+    setLoading(true);
+    // filter ingredients where the name and/or quantity is not defined
+    const filteredIngredients = ingredients?.filter(ingredient => {
+      return (ingredient.name != "" || ingredient.quantity != "") && (ingredient.name != "" && ingredient.quantity != "");
+    });
+    // check if there is ingredients, if no show error message else continue
+    if (filteredIngredients == undefined || filteredIngredients.length === 0) {
+      setIngredientsErrors("Veuillez mettre au moins un ingrédient")
+    } else {
+      setIngredientsErrors("")
+      // add ingredients to data
+      data.ingredients = filteredIngredients;
+      // fix undefined checkboxes if not touched
+      if(data.isVegan === undefined) data.isVegan = false;
+      if(data.isVegetarian === undefined) data.isVegetarian = false;
+      if(data.withoutGluten === undefined) data.withoutGluten = false;
+      // Image uploading
+      if(image) {
+        const response = await fetch(image);
+        const blob = await response.blob();
+        // Generate an unique ID for the filename
+        const fileName = (new Date()).getTime() + '-' +  Math.random().toString(16).slice(2);
+        var uploadRef = firebase.storage().ref().child(fileName);
+        uploadRef.put(blob)
+        .then(function() {
+          // Get and stock image url to access it easily
+          uploadRef.getDownloadURL().then((url) => {
+            data.imageURL = url;
+          });
+        })
+        .catch(e => {
+          console.log(e);
+        });
+      }
+
+      // get user token for authentificated API route
+      const authToken = await auth.currentUser.getIdTokenResult();
+
+      const headers = {headers: {"auth-token": authToken.token}};
+      await axios.post(`${apiUrl}/recipes`, data, headers)
+      .then(async response => {
+        // Get weekleat recipes (or create it if it does not exist) storage and put the new recipe in it
+        await AsyncStorage.getItem("weekleat-recipes")
+        .then(async recipes => {
+          var parsedRecipes = JSON.parse(recipes) || [];
+          parsedRecipes.push({id: response.data, data: data});
+          await AsyncStorage.setItem("weekleat-recipes", JSON.stringify(parsedRecipes));   
+        })
+        .catch(err => {
+          console.log(err)
+        })
+
+        navigation.navigate("MyRecipes");
+      })
+      .catch(error => {
+        console.log(error)
+        Alert.alert(
+          "Quelque chose s'est mal passé...",
+          "Echec de l'envoi de la recette, Vérifiez votre connexion ou réessayez plus tard.",
+          [
+            {
+              text: "Ok"
+            }
+          ]
+        );
+      })
+
+      setLoading(false);
+    } 
   }
 
   const onCancelPress = () => {
@@ -80,7 +152,10 @@ const AddRecipe = () => {
 
         <IngredientsInputRepeater 
           setIngredients={setIngredients}
+          ingredientsErrors={ingredientsErrors}
         />
+
+        <Text style={styles.ingredientsErrors}>{ingredientsErrors}</Text>
         
         <CustomInputWithLabel
            name="steps"
@@ -121,12 +196,28 @@ const AddRecipe = () => {
           type="secondary"
         />
       </View>
+      {loading && 
+        <ActivityIndicator size="large" color="#DA4167" style={styles.loading} />
+      }
     </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
-
+  ingredientsErrors: {
+    color: "red"
+  },
+  loading: {
+    position: "absolute",
+    left: 0,
+    right: 0,
+    top: 0,
+    bottom: 0,
+    alignItems: 'center',
+    justifyContent: 'center',
+    opacity: 0.5,
+    backgroundColor: 'black',
+  }
 });
 
 export default AddRecipe;

@@ -21,6 +21,7 @@ const AppStack = () => {
           text: "Annuler"
         },
         { text: "Oui", onPress: () => auth.signOut() } //TODO : PURGER DONNEES STORAGE
+        // AsyncStorage.clear() ?
       ]
     );
   }
