@@ -50,12 +50,10 @@ const AddRecipe = () => {
         // Generate an unique ID for the filename
         const fileName = (new Date()).getTime() + '-' +  Math.random().toString(16).slice(2);
         var uploadRef = firebase.storage().ref().child(fileName);
-        uploadRef.put(blob)
-        .then(function() {
-          // Get and stock image url to access it easily
-          uploadRef.getDownloadURL().then((url) => {
-            data.imageURL = url;
-          });
+        await uploadRef.put(blob)
+        await uploadRef.getDownloadURL()
+        .then(dlURL => {
+          data.imageURL = dlURL;
         })
         .catch(e => {
           console.log(e);
