@@ -1,11 +1,16 @@
 import React, {useState} from 'react';
 import { StyleSheet, Text, TouchableOpacity, ImageBackground, View } from 'react-native';
-import { AntDesign, FontAwesome5 } from '@expo/vector-icons';
+import { Entypo, FontAwesome5 } from '@expo/vector-icons';
+import { useRoute } from '@react-navigation/native';
 
 import RecipeModal from './RecipeModal';
+import OptionsModal from './OptionsModal';
 
-const RecipeCard = ({data, onPress, navigation}) => {
+const RecipeCard = ({data, id, reload}) => {
   const [showModal, setShowModal] = useState(false);
+  const [showModalOptions, setShowModalOptions] = useState(false);
+
+  const route = useRoute();
 
   const onModalPress = () => {
     setShowModal(!showModal)
@@ -15,9 +20,23 @@ const RecipeCard = ({data, onPress, navigation}) => {
     setShowModal(false)
   }
 
+  const onModalOptionsPress = () => {
+    setShowModalOptions(!showModalOptions)
+  }
+
+  const onHideOptionsPress = () => {
+    setShowModalOptions(false)
+  }
+
   return ( 
     <View>
       <TouchableOpacity style={styles.card} onPress={onModalPress}>
+        {route.name === "MyRecipes" &&
+          <TouchableOpacity style={styles.optionsBtn} onPress={onModalOptionsPress}>
+            <Entypo name="dots-three-vertical" size={18} color="white" style={styles.optionsIcon} />
+          </TouchableOpacity>
+        }
+
         {data.image ? (
           <ImageBackground 
             style={[styles.container, styles.bg]} 
@@ -57,6 +76,7 @@ const RecipeCard = ({data, onPress, navigation}) => {
         }
       </TouchableOpacity>
       <RecipeModal showModal={showModal} onHidePress={onHideModalPress} data={data} />
+      <OptionsModal showModalOptions={showModalOptions} onHideOptionsPress={onHideOptionsPress} data={data} id={id} reload={reload} />
     </View>
   );
 }
@@ -90,6 +110,14 @@ const styles = StyleSheet.create({
   },
   icons: {
     marginLeft: 15
+  },
+  optionsBtn: {
+    position: "absolute",
+    top: 15,
+    right: 0,
+    zIndex: 1,
+    width: 30,
+    alignItems: "center"
   }
 });
 

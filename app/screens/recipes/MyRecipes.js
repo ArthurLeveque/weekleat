@@ -1,6 +1,6 @@
-import React, {useState} from 'react';
+import React, {useState, useEffect} from 'react';
 import { StyleSheet, View, TouchableOpacity, Alert, ActivityIndicator, FlatList } from 'react-native';
-import { useFocusEffect } from '@react-navigation/native';
+import { useFocusEffect, useIsFocused } from '@react-navigation/native';
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Ionicons } from '@expo/vector-icons';
@@ -14,9 +14,9 @@ import RecipeModal from '../../globals/components/RecipeModal';
 import { auth } from '../../../firebase';
 
 const MyRecipes = ({navigation}) => {
+  const isFocused = useIsFocused();
   const [loading, setLoading] = useState(false);
   const [recipes, setRecipes] = useState();
-  const [showModal, setShowModal] = useState(false);
 
   const onAddRecipePress = () => {
     navigation.navigate("AddRecipe");
@@ -54,6 +54,7 @@ const MyRecipes = ({navigation}) => {
   }
 
   const onReloadPress = async () => {
+    setLoading(true);
     await AsyncStorage.getItem("weekleat-recipes")
     .then(async localRecipes => {
       if(localRecipes !== null) {
@@ -62,18 +63,26 @@ const MyRecipes = ({navigation}) => {
       }
     })
     .catch(e => {console.log(e)})
+    setLoading(false)
   }
 
-  useFocusEffect(
-    React.useCallback(() => {
-      getUserRecipes();
-    }, [recipes])
-  );
+  useEffect(() => {
+    let isMounted = true;
+    if (isFocused && isMounted) {
+      getUserRecipes() 
+    }
+    
+    return () => {
+      isMounted = false;
+    };
+   }, [recipes, isFocused]);
 
   const renderItem = ({ item }) => (
     <RecipeCard 
       data={item.data}
+      id={item.id}
       navigation={navigation}
+      reload={onReloadPress}
     />
   );
 
