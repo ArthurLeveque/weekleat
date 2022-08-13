@@ -51,9 +51,13 @@ const AddRecipe = () => {
         const fileName = (new Date()).getTime() + '-' +  Math.random().toString(16).slice(2);
         var uploadRef = firebase.storage().ref().child(fileName);
         await uploadRef.put(blob)
+        // Get and stock image URL to access it easily
         await uploadRef.getDownloadURL()
         .then(dlURL => {
-          data.imageURL = dlURL;
+          const image = {};
+          image.imageURL = dlURL;
+          image.imageName = fileName;
+          data.image = image;
         })
         .catch(e => {
           console.log(e);
@@ -77,7 +81,7 @@ const AddRecipe = () => {
           console.log(err)
         })
 
-        navigation.navigate("MyRecipes");
+        navigation.navigate("MyRecipes", {isUpdated : true});
       })
       .catch(error => {
         console.log(error)
@@ -128,7 +132,7 @@ const AddRecipe = () => {
 
   return (
     <ScrollView>
-      <View style={[gs.container, styles.container]}>
+      <View style={gs.container}>
         <Text style={gs.title}>Ajouter une recette</Text>
 
         <CustomInputWithLabel
@@ -203,18 +207,7 @@ const AddRecipe = () => {
 
 const styles = StyleSheet.create({
   ingredientsErrors: {
-    color: "red"
-  },
-  loading: {
-    position: "absolute",
-    left: 0,
-    right: 0,
-    top: 0,
-    bottom: 0,
-    alignItems: 'center',
-    justifyContent: 'center',
-    opacity: 0.5,
-    backgroundColor: 'black',
+    color: "red",
   }
 });
 

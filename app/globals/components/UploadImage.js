@@ -2,7 +2,6 @@ import React from 'react';
 import { Image, View, TouchableOpacity, Text, StyleSheet } from 'react-native';
 import { AntDesign } from '@expo/vector-icons';
 
-
 const UploadImage = ({addImage, addPhoto, image}) => {
 
 return (

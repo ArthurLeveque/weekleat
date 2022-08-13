@@ -56,7 +56,7 @@ const IngredientsInputRepeater = ({setIngredients}) => {
                 />
                 <View style={styles.inputPicker}>
                 <Picker  selectedValue={input.mesurement} onValueChange={(text) => mesurementHandler(text, key)} itemStyle={{fontWeight: "bold"}}>
-                  <Picker.Item label="Unité" value="unité" />
+                  <Picker.Item label="Unité" value="unit" />
                   <Picker.Item label="Cuillères à soupe" value="cuillère(s) à soupe" />
                   <Picker.Item label="Grammes" value="gr" />
                   <Picker.Item label="Kilogrammes" value="kg" />

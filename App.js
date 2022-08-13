@@ -1,6 +1,7 @@
 import React, {useEffect, useState} from 'react';
 import { StyleSheet, SafeAreaView } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 import AuthStack from './app/navigation/AuthStack';
 import AppStack from './app/navigation/AppStack';
@@ -24,15 +25,17 @@ export default function App() {
   if (initializing) return null;
 
   return (
-    <SafeAreaView style={styles.root}>
-      <NavigationContainer>
-          {!user ? (
-            <AuthStack />
-          ) : (
-            <AppStack />
-          )}
-      </NavigationContainer>
-    </SafeAreaView>
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <SafeAreaView style={styles.root}>
+        <NavigationContainer>
+            {!user ? (
+              <AuthStack />
+            ) : (
+              <AppStack />
+            )}
+        </NavigationContainer>
+      </SafeAreaView>
+    </GestureHandlerRootView>
   );
 }
 
