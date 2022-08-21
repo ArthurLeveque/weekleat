@@ -1,6 +1,6 @@
 import React, {useState, useEffect} from 'react';
 import { StyleSheet, View, TouchableOpacity, Alert, ActivityIndicator, FlatList } from 'react-native';
-import { useFocusEffect, useIsFocused } from '@react-navigation/native';
+import { useIsFocused } from '@react-navigation/native';
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Ionicons } from '@expo/vector-icons';
@@ -10,7 +10,6 @@ import { apiUrl } from '../../../apiConfig';
 
 import CustomButton from '../../globals/components/CustomButton';
 import RecipeCard from '../../globals/components/RecipeCard';
-import RecipeModal from '../../globals/components/RecipeModal';
 import { auth } from '../../../firebase';
 
 const MyRecipes = ({navigation}) => {
@@ -75,13 +74,12 @@ const MyRecipes = ({navigation}) => {
     return () => {
       isMounted = false;
     };
-   }, [recipes, isFocused]);
+  }, [recipes, isFocused]);
 
   const renderItem = ({ item }) => (
     <RecipeCard 
       data={item.data}
       id={item.id}
-      navigation={navigation}
       reload={onReloadPress}
     />
   );

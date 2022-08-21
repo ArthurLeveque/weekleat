@@ -4,46 +4,40 @@ import { Picker } from '@react-native-picker/picker';
 
 import CustomButton from './CustomButton';
 
-const IngredientsInputRepeater = ({setIngredients}) => {
-  const [inputs, setInputs] = useState([]);
+const IngredientsInputRepeater = ({setIngredients, ingredients}) => {
 
   const addHandler = () => {
-    const addinputs = [...inputs];
+    const addinputs = [...ingredients];
     addinputs.push({ key: '', ingredientName: '', mesurement: 'unit', quantity: '' });
-    setInputs(addinputs);
     setIngredients(addinputs)
   };
   const deleteHandler = (key) => {
-    const _inputs = inputs.filter((input, index) => index != key);
-    setInputs(_inputs);
+    const _inputs = ingredients.filter((input, index) => index != key);
     setIngredients(_inputs)
   };
   const ingredientHandler = (text, key) => {
-    const _inputs = [...inputs];
+    const _inputs = [...ingredients];
     _inputs[key].ingredientName = text;
     _inputs[key].key = key;
-    setInputs(_inputs);
     setIngredients(_inputs)
   };
   const quantityHandler = (text, key) => {
-    const _inputs = [...inputs];
+    const _inputs = [...ingredients];
     _inputs[key].quantity = text;
     _inputs[key].key = key;
-    setInputs(_inputs);
     setIngredients(_inputs)
   };
   const mesurementHandler = (text, key) => {
-    const _inputs = [...inputs];
+    const _inputs = [...ingredients];
     _inputs[key].mesurement = text;
     _inputs[key].key = key;
-    setInputs(_inputs);
     setIngredients(_inputs)
   };
 
   return (
     <View style={styles.container}>
         <View>
-          {inputs.map((input, key) => (
+          {ingredients.map((input, key) => (
             <View key={key} style={styles.singleIngredient}>
               <View style={styles.line}>
                 <TextInput

@@ -1,48 +1,85 @@
-import React, {useState} from 'react';
-import { StyleSheet, ScrollView, View, Text, Alert, ActivityIndicator } from 'react-native';
+import React, {useState, useEffect} from 'react';
+import { StyleSheet, View, Text, ScrollView, Alert } from 'react-native';
 import { useForm } from 'react-hook-form';
 import { auth, firebase } from '../../../firebase';
 import * as ImagePicker from 'expo-image-picker';
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-
 import { apiUrl } from '../../../apiConfig';
-import CustomInputWithLabel from '../../globals/components/CustomInputWithLabel';
 import CustomButton from '../../globals/components/CustomButton';
-import UploadImage from '../../globals/components/UploadImage';
+import CustomInputWithLabel from '../../globals/components/CustomInputWithLabel';
 import CustomCheckbox from '../../globals/components/CustomCheckbox';
 import IngredientsInputRepeater from '../../globals/components/IngredientsInputRepeater';
-
+import UploadImage from '../../globals/components/UploadImage';
 const gs = require ('../../globals/styles/GlobalStyle');
 
-const AddRecipe = ({navigation}) => {
+const EditRecipe = ({route, navigation}) => {
   const [image, setImage] = useState(null);
   const [ingredients, setIngredients] = useState([]);
   const [ingredientsErrors, setIngredientsErrors] = useState("");
-  const [loading, setLoading] = useState(false);
   const [isSendDisabled, setIsSendDisabled] = useState(false);
+  const [imageHasChanged, setImageHasChanged] = useState(true);
 
-  const {control, handleSubmit} = useForm();
+  const { data, recipeId } = route.params;
+  const {control, handleSubmit, setValue} = useForm();
 
-  const onAddPress = async (data) => {
-    setLoading(true);
+  setValue("name", data.name);
+  setValue("summary", data.summary);
+  setValue("steps", data.steps);
+  setValue("isVegan", data.isVegan);
+  setValue("isVegetarian", data.isVegetarian);
+  setValue("withoutGluten", data.withoutGluten);
+
+  const onCancelPress = () => {
+    navigation.navigate("MyRecipes");
+  }
+
+  const addImage = async () => {
+    ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: true,
+      aspect: [4,3],
+      quality: 1,
+    }).then((_image) => {
+      if (!_image.cancelled) {
+        setImageHasChanged(true);
+        setImage(_image.uri);
+      }
+    });
+  }
+
+  const addPhoto = async () => {
+    ImagePicker.launchCameraAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: true,
+      aspect: [4,3],
+      quality: 1,
+    }).then((_image) => {
+      if (!_image.cancelled) {
+        setImageHasChanged(true);
+        setImage(_image.uri);
+      }
+    });
+  }
+
+  const onEditPress = async (newData) => {
     setIsSendDisabled(true);
     // filter ingredients where the name and/or quantity is not defined
-    const filteredIngredients = ingredients.filter(ingredient => {
+    const filteredIngredients = ingredients?.filter(ingredient => {
       return (ingredient.name != "" || ingredient.quantity != "") && (ingredient.name != "" && ingredient.quantity != "");
     });
     // check if there is ingredients, if no show error message else continue
-    if (filteredIngredients.length === 0) {
+    if (filteredIngredients == undefined || filteredIngredients.length === 0) {
       setIngredientsErrors("Veuillez mettre au moins un ingrédient")
     } else {
-      setIngredientsErrors("")
+      setIngredientsErrors("");
       // add ingredients to data
-      data.ingredients = filteredIngredients;
+      newData.ingredients = filteredIngredients;
       // fix undefined checkboxes if not touched
-      if(data.isVegan === undefined) data.isVegan = false;
-      if(data.isVegetarian === undefined) data.isVegetarian = false;
-      if(data.withoutGluten === undefined) data.withoutGluten = false;
+      if(newData.isVegan === undefined) newData.isVegan = false;
+      if(newData.isVegetarian === undefined) newData.isVegetarian = false;
+      if(newData.withoutGluten === undefined) newData.withoutGluten = false;
       // Image uploading
       if(image) {
         const response = await fetch(image);
@@ -57,7 +94,7 @@ const AddRecipe = ({navigation}) => {
           const image = {};
           image.imageURL = dlURL;
           image.imageName = fileName;
-          data.image = image;
+          newData.image = image;
         })
         .catch(e => {
           console.log(e);
@@ -68,14 +105,22 @@ const AddRecipe = ({navigation}) => {
       const authToken = await auth.currentUser.getIdTokenResult();
 
       const headers = {headers: {"auth-token": authToken.token}};
-      await axios.post(`${apiUrl}/recipes`, data, headers)
-      .then(async response => {
-        // Get weekleat recipes (or create it if it does not exist) storage and put the new recipe in it
+      await axios.put(`${apiUrl}/recipes/${recipeId}`, newData, headers)
+      .then(async () => {
+         // If there is a new image, delete the previous one
+         if(imageHasChanged && data.image) {
+          await firebase.storage().ref().child(data.image.imageName).delete();
+        }
+        // Get weekleat recipes storage and put the new edited recipe in it
         await AsyncStorage.getItem("weekleat-recipes")
         .then(async recipes => {
           var parsedRecipes = JSON.parse(recipes) || [];
-          parsedRecipes.push({id: response.data, data: data});
-          await AsyncStorage.setItem("weekleat-recipes", JSON.stringify(parsedRecipes));   
+          // filter the recipes to exclude the edited recipe thanks to the ID to replace it
+          const filteredrecipes = parsedRecipes?.filter(recipe => {
+            return recipe.id !== recipeId;
+          });
+          filteredrecipes.push({id: recipeId, data: newData});
+          await AsyncStorage.setItem("weekleat-recipes", JSON.stringify(filteredrecipes));   
         })
         .catch(err => {
           console.log(err)
@@ -96,60 +141,41 @@ const AddRecipe = ({navigation}) => {
         );
       })
     } 
-    setLoading(false);
     setIsSendDisabled(false);
   }
 
-  const onCancelPress = () => {
-    navigation.navigate("MyRecipes");
-  }
-
-  const addImage = async () => {
-    ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
-      allowsEditing: true,
-      aspect: [4,3],
-      quality: 1,
-    }).then((_image) => {
-      if (!_image.cancelled) {
-        setImage(_image.uri);
-      }
-    });
-  }
-
-  const addPhoto = async () => {
-    ImagePicker.launchCameraAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
-      allowsEditing: true,
-      aspect: [4,3],
-      quality: 1,
-    }).then((_image) => {
-      if (!_image.cancelled) {
-        setImage(_image.uri);
-      }
-    });
-  }
+  useEffect(() => {
+    let isMounted = true;
+    if (isMounted) {
+      setIngredients(data.ingredients);
+      if(data.image) setImage(data.image.imageURL);
+    }
+    
+    return () => {
+      isMounted = false;
+    };
+  }, []);
 
   return (
     <ScrollView>
       <View style={gs.container}>
-        <Text style={gs.title}>Ajouter une recette</Text>
+        <Text style={gs.title}>Modifier {data.name}</Text>
 
         <CustomInputWithLabel
-           name="name"
-           label="Nom de la recette *"
-           control={control}
-           rules={{required: "Ce champ est obligatoire"}}
+          name="name"
+          label="Nom de la recette *"
+          control={control}
+          rules={{required: "Ce champ est obligatoire"}}
         />
 
         <UploadImage addImage={addImage} addPhoto={addPhoto} image={image} />
 
         <CustomInputWithLabel
-           name="summary"
-           label="Texte de présentation"
-           multiline
-           lines={5}
-           control={control}
+          name="summary"
+          label="Texte de présentation"
+          multiline
+          lines={5}
+          control={control}
         />
 
         <Text style={styles.ingredientsLabel}>Ingrédients *</Text>
@@ -162,12 +188,12 @@ const AddRecipe = ({navigation}) => {
         <Text style={styles.ingredientsErrors}>{ingredientsErrors}</Text>
         
         <CustomInputWithLabel
-           name="steps"
-           label="Etapes de la recette *"
-           multiline
-           lines={5}
-           control={control}
-           rules={{required: "Ce champ est obligatoire"}}
+          name="steps"
+          label="Etapes de la recette *"
+          multiline
+          lines={5}
+          control={control}
+          rules={{required: "Ce champ est obligatoire"}}
         />
 
         <CustomCheckbox
@@ -189,21 +215,18 @@ const AddRecipe = ({navigation}) => {
         />
 
         <CustomButton 
-          label="Ajouter"
-          onPress={handleSubmit(onAddPress)}
+          label="Modifier"
+          onPress={handleSubmit(onEditPress)}
           type="primary"
           disabled={isSendDisabled}
         />
-
+        
         <CustomButton 
           label="Annuler"
           onPress={onCancelPress}
           type="secondary"
         />
       </View>
-      {loading && 
-        <ActivityIndicator size="large" color="#DA4167" style={styles.loading} />
-      }
     </ScrollView>
   );
 }
@@ -219,4 +242,4 @@ const styles = StyleSheet.create({
   }
 });
 
-export default AddRecipe;
+export default EditRecipe;

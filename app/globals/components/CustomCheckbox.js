@@ -1,9 +1,9 @@
 import React from 'react';
-import { View, StyleSheet, TextInput, Text } from 'react-native';
+import { View, StyleSheet, Text } from 'react-native';
 import { Controller } from 'react-hook-form';
 import Checkbox from 'expo-checkbox';
 
-const CustomCheckbox = ({control, name, rules = {}, label, hidden, showError = true, multiline, lines}) => {
+const CustomCheckbox = ({control, name, rules = {}, label, showError = true}) => {
   return ( 
     <View style={styles.container}>
       <Controller

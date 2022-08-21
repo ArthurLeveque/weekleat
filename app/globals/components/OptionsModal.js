@@ -3,6 +3,7 @@ import { StyleSheet, Text, View, TouchableOpacity, Alert } from 'react-native';
 import Modal from "react-native-modal";
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useNavigation } from '@react-navigation/native';
 
 import { apiUrl } from '../../../apiConfig';
 import { auth, firebase } from '../../../firebase';
@@ -10,6 +11,7 @@ const gs = require ('../../globals/styles/GlobalStyle');
 
 const OptionsModal = ({showModalOptions = false, onHideOptionsPress, data, id, reload}) => {
   const mounted = useRef(false);
+  const navigation = useNavigation();
 
     useEffect(() => {
         mounted.current = true;
@@ -74,11 +76,16 @@ const OptionsModal = ({showModalOptions = false, onHideOptionsPress, data, id, r
     })
   }
 
+  const onEditPress = () => {
+    onHideOptionsPress();
+    navigation.navigate('EditRecipe', {data: data, recipeId: id});
+  }
+
   return ( 
     <Modal isVisible={showModalOptions} onBackdropPress={onHideOptionsPress} propagateSwipe >
       <View style={styles.container}>
         
-        <TouchableOpacity>
+        <TouchableOpacity onPress={onEditPress}>
           <Text style={[styles.text, styles.bold, styles.update]}>Modifier</Text>
         </TouchableOpacity>
 
