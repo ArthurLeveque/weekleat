@@ -1,6 +1,5 @@
 import React, {useState, useEffect} from 'react';
 import { StyleSheet, View, TouchableOpacity, Alert, ActivityIndicator, FlatList } from 'react-native';
-import { useIsFocused } from '@react-navigation/native';
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Ionicons } from '@expo/vector-icons';
@@ -13,7 +12,6 @@ import RecipeCard from '../../globals/components/RecipeCard';
 import { auth } from '../../../firebase';
 
 const MyRecipes = ({navigation}) => {
-  const isFocused = useIsFocused();
   const [loading, setLoading] = useState(false);
   const [recipes, setRecipes] = useState();
 
@@ -48,7 +46,6 @@ const MyRecipes = ({navigation}) => {
         setRecipes(userRecipes.data)
       }
     })
-    console.log(recipes)
     setLoading(false);
   }
 
@@ -67,14 +64,18 @@ const MyRecipes = ({navigation}) => {
 
   useEffect(() => {
     let isMounted = true;
-    if (isFocused && isMounted) {
-      getUserRecipes() 
+    if(isMounted) {
+      const unsubscribe = navigation.addListener('focus', () => {
+        getUserRecipes() 
+      });
+      return unsubscribe;
     }
     
     return () => {
       isMounted = false;
     };
-  }, [recipes, isFocused]);
+
+  }, [navigation]);
 
   const renderItem = ({ item }) => (
     <RecipeCard 
