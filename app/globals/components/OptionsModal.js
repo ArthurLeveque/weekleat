@@ -13,13 +13,13 @@ const OptionsModal = ({showModalOptions = false, onHideOptionsPress, data, id, r
   const mounted = useRef(false);
   const navigation = useNavigation();
 
-    useEffect(() => {
-        mounted.current = true;
+  useEffect(() => {
+      mounted.current = true;
 
-        return () => {
-            mounted.current = false;
-        };
-    }, []);
+      return () => {
+        mounted.current = false;
+      };
+  }, []);
 
   const onDeletePress = () => {
     Alert.alert(

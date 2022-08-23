@@ -60,12 +60,24 @@ const Home = () => {
         />
 
         <CustomButton 
-          label="Suppression image"
+          label="Vider storage weekliste"
           onPress={async () => {
-            await AsyncStorage.removeItem("weekleat-recipes")
+            await AsyncStorage.removeItem("weekleat-weeklist")
           }}
           type="primary"
         />
+        <CustomButton 
+          label="Storage weekliste"
+          onPress={async () => {
+            await AsyncStorage.getItem("weekleat-weeklist")
+            .then(pouet => {
+              const currentUser = JSON.parse(pouet);
+              console.log(currentUser);
+            })
+          }}
+          type="primary"
+        />
+
     </View>
   );
 }

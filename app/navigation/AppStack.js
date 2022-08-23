@@ -9,6 +9,8 @@ import Home from '../screens/Home';
 import AddRecipe from '../screens/recipes/AddRecipe';
 import MyRecipes from '../screens/recipes/MyRecipes';
 import EditRecipe from '../screens/recipes/EditRecipe';
+import MyWeekList from '../screens/weeklist/MyWeeklist';
+import GenerateWeeklist from '../screens/weeklist/GenerateWeeklist';
 
 const Drawer = createDrawerNavigator();
 const Stack = createNativeStackNavigator();
@@ -24,7 +26,7 @@ const AppStack = () => {
         },
         { text: "Oui", onPress: async() => {
           await auth.signOut();
-          await AsyncStorage.multiRemove(['weekleat-recipes']);
+          await AsyncStorage.multiRemove(['weekleat-recipes', 'weekleat-weeklist']);
         }}
       ]
     );
@@ -36,6 +38,15 @@ const AppStack = () => {
         <Stack.Screen name="MyRecipes" component={MyRecipes} />
         <Stack.Screen name="AddRecipe" component={AddRecipe} />
         <Stack.Screen name="EditRecipe" component={EditRecipe} />
+      </Stack.Navigator>
+    );
+  }
+
+  function Weeklist() {
+    return (
+      <Stack.Navigator screenOptions={{headerShown: false}}>
+        <Stack.Screen name="MyWeekList" component={MyWeekList} />
+        <Stack.Screen name="GenerateWeeklist" component={GenerateWeeklist} />
       </Stack.Navigator>
     );
   }
@@ -64,6 +75,7 @@ const AppStack = () => {
       }}
     >
       <Drawer.Screen name="Home" component={Home} options={{title: "Accueil"}} />
+      <Drawer.Screen name="Weeklist" component={Weeklist} options={{title: "Ma weekliste"}} />
       <Drawer.Screen name="Recipes" component={Recipes} options={{title: "Mes recettes"}} />
     </Drawer.Navigator>
   );

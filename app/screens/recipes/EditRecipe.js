@@ -24,13 +24,6 @@ const EditRecipe = ({route, navigation}) => {
   const { data, recipeId } = route.params;
   const {control, handleSubmit, setValue} = useForm();
 
-  setValue("name", data.name);
-  setValue("summary", data.summary);
-  setValue("steps", data.steps);
-  setValue("isVegan", data.isVegan);
-  setValue("isVegetarian", data.isVegetarian);
-  setValue("withoutGluten", data.withoutGluten);
-
   const onCancelPress = () => {
     navigation.navigate("MyRecipes");
   }
@@ -147,6 +140,13 @@ const EditRecipe = ({route, navigation}) => {
   useEffect(() => {
     let isMounted = true;
     if (isMounted) {
+      setValue("name", data.name);
+      setValue("summary", data.summary);
+      setValue("steps", data.steps);
+      setValue("isVegan", data.isVegan);
+      setValue("isVegetarian", data.isVegetarian);
+      setValue("withoutGluten", data.withoutGluten);
+      
       setIngredients(data.ingredients);
       if(data.image) setImage(data.image.imageURL);
     }

@@ -62,6 +62,16 @@ const MyRecipes = ({navigation}) => {
     setLoading(false)
   }
 
+  // useEffect(() => {
+  //   let isMounted = true;
+  //   if (isFocused && isMounted) {
+  //     getUserRecipes() 
+  //   }
+    
+  //   return () => {
+  //     isMounted = false;
+  //   };
+  // }, [recipes, isFocused]);
   useEffect(() => {
     let isMounted = true;
     if(isMounted) {

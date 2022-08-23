@@ -30,7 +30,7 @@ const RecipeModal = ({showModal = false, onHidePress, data}) => {
           {data.ingredients?.map((ingredient, key) => {
             return(
               <View key={key} style={styles.ingredientItem}>
-                <Text style={gs.text}>{ingredient.quantity}{ingredient.mesurement === "unit" ? "" : " " + ingredient.mesurement} {ingredient.ingredientName}</Text>
+                <Text style={gs.text}>{ingredient.quantity}{ingredient.mesurement === "unit" ? "" : " " + ingredient.mesurement + " de"} {ingredient.ingredientName}</Text>
               </View>
             )
           })}
