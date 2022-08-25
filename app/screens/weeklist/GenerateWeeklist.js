@@ -1,5 +1,5 @@
 import React, {useState, useEffect} from 'react';
-import { StyleSheet, View, Text, TouchableOpacity, ActivityIndicator, Alert, FlatList } from 'react-native';
+import { StyleSheet, View, Text, TouchableOpacity, ActivityIndicator, Alert } from 'react-native';
 import Modal from "react-native-modal";
 import { useForm } from 'react-hook-form';
 import axios from 'axios';
@@ -78,7 +78,49 @@ const GenerateWeeklist = ({navigation}) => {
   }
 
   const onConfirmPress = async () => {
+    setLoading(true);
+    let data = {};
 
+    let date = new Date();
+    const day = date.getDate();
+    const month = date.getMonth() + 1;
+    const year = date.getFullYear();
+    data.startDate = `${year}/${month}/${day}`;
+
+    date.setDate(date.getDate() + 6);
+    const endDay = date.getDate();
+    const endMonth = date.getMonth() + 1;
+    const endYear = date.getFullYear();
+    data.endDate = `${endYear}/${endMonth}/${endDay}`;
+
+    data.recipes = recipes;
+    // Get weeklist id to edit it
+    const storageWeeklist = await AsyncStorage.getItem("weekleat-weeklist");
+    const parsedStorageWeeklist = await JSON.parse(storageWeeklist)
+    const weeklistID = parsedStorageWeeklist.id;
+
+    const authToken = await auth.currentUser.getIdTokenResult();
+    const headers = {headers: {"auth-token": authToken.token}};
+    await axios.put(`${apiUrl}/lists/${weeklistID}`, data, headers)
+    .then(async () => {
+      await AsyncStorage.removeItem(`weekleat-weeklist-tempo-${auth.currentUser.uid}`);
+      await AsyncStorage.setItem(`weekleat-weeklist`, JSON.stringify(data));
+      navigation.navigate("MyWeekList");
+    })
+    .catch((e) => {
+      console.log(e);
+      Alert.alert(
+        "Quelque chose s'est mal passé...",
+        "Echec de la modification de votre weekliste, Vérifiez votre connexion ou réessayez plus tard.",
+        [
+          {
+            text: "Ok"
+          }
+        ]
+      );
+    })
+
+    setLoading(false);
   }
 
   useEffect(() => {

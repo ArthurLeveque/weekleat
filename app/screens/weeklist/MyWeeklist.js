@@ -20,7 +20,7 @@ const MyWeekList = ({navigation}) => {
     .then(async localWeeklist => {
       if(localWeeklist !== null && weeklist === undefined) {
         const parsedWeeklist = await JSON.parse(localWeeklist)
-        setWeeklist(parsedWeeklist)
+        setWeeklist(parsedWeeklist.data)
       } else if (localWeeklist === null && weeklist === undefined) {
         console.log("CALL API")
         const uid = auth.currentUser.uid;
@@ -28,7 +28,7 @@ const MyWeekList = ({navigation}) => {
         await axios.get(`${apiUrl}/lists/user/${uid}`)
         .then(async (userWeeklist) => {
           await AsyncStorage.setItem("weekleat-weeklist", JSON.stringify(userWeeklist.data));
-          setWeeklist(userWeeklist.data)
+          setWeeklist(userWeeklist.data.data)
         })
         .catch(async (e) => {
           console.log(e.response);
@@ -53,6 +53,13 @@ const MyWeekList = ({navigation}) => {
             }
             const headers = {headers: {"auth-token": authToken.token}};
             await axios.post(`${apiUrl}/lists`, data, headers)
+            .then(async (response) => {
+              const responseData = {
+                id: response.data,
+                data: data
+              }
+              await AsyncStorage.setItem("weekleat-weeklist", JSON.stringify(responseData));
+            })
             .catch((e) => {
               console.log(e);
               Alert.alert(
@@ -65,7 +72,7 @@ const MyWeekList = ({navigation}) => {
                 ]
               );
             })
-            await AsyncStorage.setItem("weekleat-weeklist", JSON.stringify(data));
+            
             setWeeklist(data);
           }
         });
@@ -102,7 +109,7 @@ const MyWeekList = ({navigation}) => {
       {!loading ? (
         <View style={[gs.container, styles.container]}>
           {!weeklist ? (
-            <Text style={styles.text}>Nous n'avons pas pu retrouvé votre weekliste ! Veuillez quitter cet écran et revenez plus tard.</Text>
+            <Text style={styles.text}>Nous n'avons pas pu retrouvé votre weekliste ! Veuillez quitter cet écran et revenir plus tard.</Text>
           ) : (
             <>
               {weeklist.endDate === "unknown" &&
@@ -123,6 +130,12 @@ const MyWeekList = ({navigation}) => {
                     onPress={onAddWeeklistPress}
                     type="primary"
                   />
+                </>
+              }
+              {Date.parse(weeklist.endDate) >= Date.parse(currentDate) &&
+                <>
+                  <Text style={styles.text}>C'est good</Text>
+                  
                 </>
               }
             </>
