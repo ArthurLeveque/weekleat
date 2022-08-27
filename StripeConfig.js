@@ -1,0 +1,3 @@
+const StripePublishableKey = "pk_test_51Lb3zcJH5h0agO1XUNVuWvFYyxVjVWqFZ4c0KsfmxprbE5joI4yPC6TwZ8E04TYjZNDhJFkYLBdcJCD4KcDpzQrk006cjEDX6O"
+
+export {StripePublishableKey};

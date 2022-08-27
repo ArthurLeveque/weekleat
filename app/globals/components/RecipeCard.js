@@ -6,7 +6,7 @@ import { useRoute } from '@react-navigation/native';
 import RecipeModal from './RecipeModal';
 import OptionsModal from './OptionsModal';
 
-const RecipeCard = ({data, id, reload, deleteFromList, indexList}) => {
+const RecipeCard = ({data, id, reload, deleteFromList, indexList, onDeleteConfirm}) => {
   const [showModal, setShowModal] = useState(false);
   const [showModalOptions, setShowModalOptions] = useState(false);
 
@@ -97,7 +97,7 @@ const RecipeCard = ({data, id, reload, deleteFromList, indexList}) => {
         }
       </TouchableOpacity>
       <RecipeModal showModal={showModal} onHidePress={onHideModalPress} data={data} />
-      <OptionsModal showModalOptions={showModalOptions} onHideOptionsPress={onHideOptionsPress} data={data} id={id} reload={reload} />
+      <OptionsModal showModalOptions={showModalOptions} onHideOptionsPress={onHideOptionsPress} data={data} id={id} reload={reload} onDeleteConfirm={onDeleteConfirm} />
     </View>
   );
 }

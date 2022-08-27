@@ -11,6 +11,8 @@ import MyRecipes from '../screens/recipes/MyRecipes';
 import EditRecipe from '../screens/recipes/EditRecipe';
 import MyWeekList from '../screens/weeklist/MyWeeklist';
 import GenerateWeeklist from '../screens/weeklist/GenerateWeeklist';
+import PremiumPresentation from '../screens/premium/PremiumPresentation';
+import PremiumPayment from '../screens/premium/PremiumPayment';
 
 const Drawer = createDrawerNavigator();
 const Stack = createNativeStackNavigator();
@@ -51,6 +53,15 @@ const AppStack = () => {
     );
   }
 
+  function Premium() {
+    return (
+      <Stack.Navigator screenOptions={{headerShown: false}}>
+        <Stack.Screen name="PremiumPresentation" component={PremiumPresentation} />
+        <Stack.Screen name="PremiumPayment" component={PremiumPayment} />
+      </Stack.Navigator>
+    );
+  }
+
   return (
     <Drawer.Navigator 
       useLegacyImplementation={true} 
@@ -77,6 +88,7 @@ const AppStack = () => {
       <Drawer.Screen name="Home" component={Home} options={{title: "Accueil"}} />
       <Drawer.Screen name="Weeklist" component={Weeklist} options={{title: "Ma weekliste"}} />
       <Drawer.Screen name="Recipes" component={Recipes} options={{title: "Mes recettes"}} />
+      <Drawer.Screen name="Premium" component={Premium} options={{title: "Weekleat premium"}} />
     </Drawer.Navigator>
   );
 }

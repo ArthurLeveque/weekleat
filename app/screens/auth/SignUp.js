@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, View, ScrollView, Text } from 'react-native';
+import { StyleSheet, View, ScrollView, Text, Alert } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { useForm } from 'react-hook-form';
 
@@ -20,7 +20,30 @@ const SignUp = () => {
   const onSignUpPress = (data) => {
     auth
     .createUserWithEmailAndPassword(data.email, data.password)
-    .catch(error => alert(error.message))
+    .catch(error => {
+      console.log(error.code)
+      if(error.code == "auth/email-already-in-use") {
+        Alert.alert(
+          "Quelque chose s'est mal passé...",
+          "Cette adresse mail est déjà utilisée !",
+          [
+            {
+              text: "Ok"
+            }
+          ]
+        );
+      } else {
+        Alert.alert(
+          "Quelque chose s'est mal passé...",
+          "Il y a un problème avec votre connexion ou nos serveurs, veuillez réessayer plus tard.",
+          [
+            {
+              text: "Ok"
+            }
+          ]
+        );
+      }
+    })
   }
 
   const onTermsOfUsePress = () => {

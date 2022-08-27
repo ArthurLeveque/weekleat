@@ -9,7 +9,7 @@ import { apiUrl } from '../../../apiConfig';
 import { auth, firebase } from '../../../firebase';
 const gs = require ('../../globals/styles/GlobalStyle');
 
-const OptionsModal = ({showModalOptions = false, onHideOptionsPress, data, id, reload}) => {
+const OptionsModal = ({showModalOptions = false, onHideOptionsPress, data, id, onDeleteConfirm}) => {
   const mounted = useRef(false);
   const navigation = useNavigation();
 
@@ -27,53 +27,9 @@ const OptionsModal = ({showModalOptions = false, onHideOptionsPress, data, id, r
       `Voulez-vous vraiment supprimer la recette ${data.name} ?`,
       [
         { text: "Annuler" },
-        { text: "Oui", onPress: () => onDeleteConfirm() }
+        { text: "Oui", onPress: () => onDeleteConfirm(id, data) }
       ]
     );
-  }
-
-  const onDeleteConfirm = async () => {
-    // get user token for authentificated API route
-    const authToken = await auth.currentUser.getIdTokenResult();
-
-    const headers = {headers: {"auth-token": authToken.token}};
-    await axios.delete(`${apiUrl}/recipes/${id}`, headers)
-    .then(async () => {
-      if(data.image && data.image.imageName) {
-        await firebase.storage().ref().child(data.image.imageName).delete();
-      }
-      // Get weekleat recipes and delete the corresponding recipe
-      await AsyncStorage.getItem("weekleat-recipes")
-      .then(async recipes => {
-        var parsedRecipes = JSON.parse(recipes) || [];
-        // filter the recipes to exclude the deleted recipe thanks to the ID
-        const filteredrecipes = parsedRecipes?.filter(recipe => {
-          return recipe.id !== id;
-        });
-        await AsyncStorage.setItem("weekleat-recipes", JSON.stringify(filteredrecipes));
-      })
-      .catch(err => {
-        if (axios.isCancel(err)) {
-          console.log(err);
-          return false;
-        }
-      })
-
-      onHideOptionsPress();
-      reload();
-    })
-    .catch(error => {
-      console.log(error)
-      Alert.alert(
-        "Quelque chose s'est mal passé...",
-        "Echec de l'envoi de la recette, Vérifiez votre connexion ou réessayez plus tard.",
-        [
-          {
-            text: "Ok"
-          }
-        ]
-      );
-    })
   }
 
   const onEditPress = () => {

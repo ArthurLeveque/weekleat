@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from 'react';
-import { StyleSheet, SafeAreaView } from 'react-native';
+import { StyleSheet, SafeAreaView, LogBox } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
@@ -10,6 +10,8 @@ import { auth } from './firebase';
 export default function App() {
   const [initializing, setInitializing] = useState(true);
   const [user, setUser] = useState();
+
+  LogBox.ignoreLogs(['new NativeEventEmitter']); // Ignore log notification of Stripe
 
   // Handle user state changes
   function onAuthStateChanged(user) {
