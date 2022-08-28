@@ -5,6 +5,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
 
 import CustomButton from '../globals/components/CustomButton';
+import { apiUrl } from '../../apiConfig';
 
 const gs = require ('../globals/styles/GlobalStyle');
 

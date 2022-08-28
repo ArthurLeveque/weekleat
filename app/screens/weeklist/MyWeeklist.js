@@ -34,7 +34,7 @@ const MyWeekList = ({navigation}) => {
         })
         .catch(async (e) => {
           // if error status is not the good one (400) show error message, else create a weeklist for the user
-          if(e.response.status !== 400) {
+          if(e.response.status !== 402) {
             Alert.alert(
               "Quelque chose s'est mal passé...",
               "Echec de la récupération de votre weekliste, Vérifiez votre connexion ou réessayez plus tard.",

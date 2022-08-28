@@ -46,7 +46,7 @@ const PremiumPayment = ({navigation}) => {
       const authToken = await auth.currentUser.getIdTokenResult();
       const headers = {headers: {"auth-token": authToken.token}};
       // Call this route to find/create the customer and create the subscription
-      const res = await axios.post(`${apiUrl}/payments`, {"payment_method": result.paymentMethod.id, "name": formData.name}, headers);
+      const res = await axios.post(`${apiUrl}/subscriptions`, {"payment_method": result.paymentMethod.id, "name": formData.name}, headers);
       // Confirm the payment
       await confirmPayment(res.data.clientSecret, {
         type: "Card",
