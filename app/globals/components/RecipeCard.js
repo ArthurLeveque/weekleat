@@ -1,12 +1,12 @@
 import React, {useState} from 'react';
 import { StyleSheet, Text, TouchableOpacity, ImageBackground, View } from 'react-native';
-import { Entypo, MaterialCommunityIcons } from '@expo/vector-icons';
+import { Entypo, MaterialCommunityIcons, AntDesign } from '@expo/vector-icons';
 import { useRoute } from '@react-navigation/native';
 
 import RecipeModal from './RecipeModal';
 import OptionsModal from './OptionsModal';
 
-const RecipeCard = ({data, id, reload, deleteFromList, indexList, onDeleteConfirm}) => {
+const RecipeCard = ({data, id, reload, deleteFromList, indexList, onDeleteConfirm, addToFavorites, deleteFromFavorites, favorites}) => {
   const [showModal, setShowModal] = useState(false);
   const [showModalOptions, setShowModalOptions] = useState(false);
 
@@ -32,6 +32,14 @@ const RecipeCard = ({data, id, reload, deleteFromList, indexList, onDeleteConfir
     deleteFromList(indexList);
   }
 
+  const onAddToFavoritesPress = () => {
+    addToFavorites({id: id, data: data});
+  }
+
+  const onDeleteFromFavoritesPress = () => {
+    deleteFromFavorites(id);
+  }
+
   return ( 
     <View>
       <TouchableOpacity style={styles.card} onPress={onModalPress}>
@@ -44,6 +52,19 @@ const RecipeCard = ({data, id, reload, deleteFromList, indexList, onDeleteConfir
           <TouchableOpacity style={styles.optionsBtn} onPress={onDeletePress}>
             <Entypo name="cross" size={18} color="white" style={styles.optionsIcon} />
           </TouchableOpacity>
+        }
+        {(route.name === "GenerateWeeklist" || route.name === "MyWeeklist" || route.name === "MyFavorites") &&
+        <>
+          {favorites?.some(recipe => recipe.id === id) ? (
+            <TouchableOpacity style={styles.optionsBtnBottom} onPress={onDeleteFromFavoritesPress}>
+              <AntDesign name="heart" size={18} color="white" style={styles.optionsIcon} />
+            </TouchableOpacity>
+          ) : (
+            <TouchableOpacity style={styles.optionsBtnBottom} onPress={onAddToFavoritesPress}>
+              <AntDesign name="hearto" size={18} color="white" style={styles.optionsIcon} />
+            </TouchableOpacity>
+          )}
+        </>
         }
 
         {data.image ? (
@@ -136,6 +157,14 @@ const styles = StyleSheet.create({
     position: "absolute",
     top: 15,
     right: 0,
+    zIndex: 1,
+    width: 30,
+    alignItems: "center"
+  },
+  optionsBtnBottom: {
+    position: "absolute",
+    bottom: 15,
+    left: 15,
     zIndex: 1,
     width: 30,
     alignItems: "center"

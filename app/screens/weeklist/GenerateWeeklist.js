@@ -1,18 +1,20 @@
 import React, {useState, useEffect} from 'react';
-import { StyleSheet, View, Text, TouchableOpacity, ActivityIndicator, Alert } from 'react-native';
+import { StyleSheet, View, Text, TouchableOpacity, ActivityIndicator, Alert, ScrollView } from 'react-native';
 import Modal from "react-native-modal";
 import { useForm } from 'react-hook-form';
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
+import { auth } from '../../../firebase';
+import { apiUrl } from '../../../apiConfig';
+
 const gs = require ('../../globals/styles/GlobalStyle');
 import CustomButton from '../../globals/components/CustomButton';
 import CustomCheckbox from '../../globals/components/CustomCheckbox';
-import { auth } from '../../../firebase';
-import { apiUrl } from '../../../apiConfig';
 import RecipeCard from '../../globals/components/RecipeCard';
-import { ScrollView } from 'react-native-gesture-handler';
 import EmptyRecipeCard from '../../globals/components/EmptyRecipeCard';
+import PremiumModal from '../../globals/components/PremiumModal';
+import AddRecipeModal from '../../globals/components/AddRecipeModal';
 
 const GenerateWeeklist = ({navigation}) => {
   const {control, handleSubmit} = useForm();
@@ -21,9 +23,18 @@ const GenerateWeeklist = ({navigation}) => {
   const [isGenerated, setIsGenerated] = useState(false);
   const [modalOptions, setModalOptions] = useState(false);
   const [recipes, setRecipes] = useState();
+  const [myRecipes, setMyRecipes] = useState();
+  const [showModalPremium, setShowModalPremium] = useState(false);
+  const [showModalAddRecipe, setShowModalAddRecipe] = useState(false);
+  const [favorites, setFavorites] = useState();
+  const [tempoIndex, setTempoIndex] = useState();
 
   const onOptionsPress = () => {
     setModalOptions(!modalOptions)
+  }
+
+  const onHidePremiumPress = () => {
+    setShowModalPremium(!showModalPremium)
   }
 
   const onGeneratePress = async (data) => {
@@ -78,7 +89,6 @@ const GenerateWeeklist = ({navigation}) => {
   }
 
   const onConfirmPress = async () => {
-    setLoading(true);
     let data = {};
 
     let date = new Date();
@@ -102,10 +112,10 @@ const GenerateWeeklist = ({navigation}) => {
     const authToken = await auth.currentUser.getIdTokenResult();
     const headers = {headers: {"auth-token": authToken.token}};
     await axios.put(`${apiUrl}/lists/${weeklistID}`, data, headers)
-    .then(async () => {
+    .then(async (response) => {
       await AsyncStorage.removeItem(`weekleat-weeklist-tempo-${auth.currentUser.uid}`);
-      await AsyncStorage.setItem(`weekleat-weeklist`, JSON.stringify(data));
-      navigation.navigate("MyWeekList");
+      await AsyncStorage.setItem(`weekleat-weeklist`, JSON.stringify({id: response.id, data: data}));
+      navigation.navigate("MyWeeklist");
     })
     .catch((e) => {
       console.log(e);
@@ -119,22 +129,228 @@ const GenerateWeeklist = ({navigation}) => {
         ]
       );
     })
+  }
 
-    setLoading(false);
+  const checkUserSubscription = async () => {
+    let isSubscribed = false;
+    // get user token for authentificated API route
+    const authToken = await auth.currentUser.getIdTokenResult();
+    const headers = {headers: {"auth-token": authToken.token}};
+    const response = await axios.get(`${apiUrl}/subscriptions/isSubscribed`, headers);
+    
+    if(response.data !== false) {
+      isSubscribed = true;
+    } 
+    return isSubscribed;
+  }
+
+  const onReloadPress = async (indexList) => {
+    // Check if user is subscribed
+    const isSubscribed = await checkUserSubscription();
+    // If not subscribed, show the premium modal, else reload the recipe
+    if(!isSubscribed) {
+      setShowModalPremium(true);
+    } else {
+      setLoading(true);
+      // get user token for authentificated API route
+      const authToken = await auth.currentUser.getIdTokenResult();
+      const headers = {headers: {"auth-token": authToken.token}};
+      await axios.get(`${apiUrl}/recipes/random`, headers)
+      .then(async (newRecipe) => {
+        if(newRecipe.data) {
+          let tempoRecipes = recipes;
+          tempoRecipes[indexList] = newRecipe.data;
+          await AsyncStorage.setItem(`weekleat-weeklist-tempo-${auth.currentUser.uid}`, JSON.stringify(tempoRecipes));
+          setRecipes(tempoRecipes);
+        }
+      })
+      .catch((e) => {
+        console.log(e.response)
+      });
+
+      setLoading(false);
+    }
+  }
+
+  const getUserFavorites = async () => {
+    await AsyncStorage.getItem("weekleat-favorites")
+    .then(async localFavorites => {
+      if(localFavorites !== null && favorites === undefined) {
+        const parsedFavorites = await JSON.parse(localFavorites)
+        setFavorites(parsedFavorites)
+      } else if (localFavorites === null && favorites === undefined) {
+        console.log("CALL API")
+        const uid = auth.currentUser.uid;
+        
+        await axios.get(`${apiUrl}/favorites/user/${uid}`)
+        .then(async (userFavorites) => {
+          await AsyncStorage.setItem("weekleat-favorites", JSON.stringify(userFavorites.data));
+          setFavorites(userFavorites.data)
+        })
+        .catch(async (e) => {
+          // if error status is not the good one (402) show error message, else create a weeklist for the user
+          if(e.response.status !== 402) {
+            Alert.alert(
+              "Quelque chose s'est mal passé...",
+              "Echec de la récupération de vos favoris, Vérifiez votre connexion ou réessayez plus tard.",
+              [
+                {
+                  text: "Ok"
+                }
+              ]
+            );
+          } else {
+            console.log("CREATE FAVORITES");
+            // get user token for authentificated API route
+            const authToken = await auth.currentUser.getIdTokenResult();
+            const headers = {headers: {"auth-token": authToken.token}};
+            await axios.post(`${apiUrl}/lists`, {}, headers)
+            .then(async (response) => {
+              const responseData = {
+                id: response.data,
+                data: {
+                  recipes: []
+                }
+              }
+              await AsyncStorage.setItem("weekleat-favorites", JSON.stringify(responseData));
+              setFavorites(responseData);
+            })
+            .catch((e) => {
+              console.log(e);
+              Alert.alert(
+                "Quelque chose s'est mal passé...",
+                "Echec de l'initialisation de votre weekliste, Vérifiez votre connexion ou réessayez plus tard.",
+                [
+                  {
+                    text: "Ok"
+                  }
+                ]
+              );
+            })
+          }
+        });
+      }
+    })
+  }
+
+  const addToFavorites = async (data) => {
+    setLoading(true);
+
+    let tempoFavorites = favorites;
+    if(tempoFavorites.data.recipes) {
+      tempoFavorites.data.recipes.push(data);
+    } else {
+      tempoFavorites.data = {};
+      tempoFavorites.data.recipes = [];
+      tempoFavorites.data.recipes.push(data);
+    }
+
+    const authToken = await auth.currentUser.getIdTokenResult();
+    const headers = {headers: {"auth-token": authToken.token}};
+    await axios.put(`${apiUrl}/favorites/${favorites.id}`, tempoFavorites.data, headers)
+    .then(async () => {
+      await AsyncStorage.setItem("weekleat-favorites", JSON.stringify(tempoFavorites));
+      setFavorites(tempoFavorites);
+      setLoading(false);
+    })
+    .catch((e) => {
+      console.log(e.response);
+      setLoading(false);
+    })
+  }
+
+  const deleteFromFavorites = async (id) => {
+    setLoading(true);
+
+    let tempoFavorites = favorites;
+    const filteredrecipes = tempoFavorites.data.recipes.filter(recipe => {
+      return recipe.id !== id;
+    });
+    tempoFavorites.data.recipes = filteredrecipes;
+
+    const authToken = await auth.currentUser.getIdTokenResult();
+    const headers = {headers: {"auth-token": authToken.token}};
+    await axios.put(`${apiUrl}/favorites/${favorites.id}`, tempoFavorites.data, headers)
+    .then(async () => {
+      await AsyncStorage.setItem("weekleat-favorites", JSON.stringify(tempoFavorites));
+      setFavorites(tempoFavorites);
+      setLoading(false);
+    })
+    .catch((e) => {
+      console.log(e.response);
+      setLoading(false);
+    })
+  }
+
+  const getUserRecipes = async () => {
+    await AsyncStorage.getItem("weekleat-recipes")
+    .then(async localRecipes => {
+      if(localRecipes !== null && myRecipes === undefined) {
+        const parsedRecipes = await JSON.parse(localRecipes)
+        setMyRecipes(parsedRecipes)
+      } else if (localRecipes === null && myRecipes === undefined) {
+        console.log("CALL API")
+        const uid = auth.currentUser.uid;
+        const userRecipes = await axios.get(`${apiUrl}/recipes/user/${uid}`)
+        .catch(e => {
+          console.log(e);
+          Alert.alert(
+            "Quelque chose s'est mal passé...",
+            "Echec de la récupération de vos recettes, Vérifiez votre connexion ou réessayez plus tard.",
+            [
+              {
+                text: "Ok"
+              }
+            ]
+          );
+        });
+        await AsyncStorage.setItem("weekleat-recipes", JSON.stringify(userRecipes.data));
+        setMyRecipes(userRecipes.data)
+      }
+    })
+  }
+
+  const onShowModalAddRecipePress = (index) => {
+    setShowModalAddRecipe(!showModalAddRecipe);
+    setTempoIndex(index);
+  }
+
+  const onHideAddModalPress = () => {
+    setShowModalAddRecipe(false);
+  }
+
+  const onAddPress = async (id, data) => {
+     // Check if user is subscribed
+    const isSubscribed = await checkUserSubscription();
+    // If not subscribed, show the premium modal, else reload the recipe
+    if(!isSubscribed) {
+      setShowModalPremium(true);
+    } else {
+      setLoading(true);
+      let tempoRecipes = recipes;
+      tempoRecipes[id] = data;
+      await AsyncStorage.setItem(`weekleat-weeklist-tempo-${auth.currentUser.uid}`, JSON.stringify(tempoRecipes));
+      setRecipes(tempoRecipes);
+      setLoading(false);
+    } 
   }
 
   useEffect(() => {
     let isMounted = true;
 
     navigation.addListener('focus', async () => {
+      setLoading(true);
+      await getUserFavorites();
+      await getUserRecipes();
       await AsyncStorage.getItem(`weekleat-weeklist-tempo-${auth.currentUser.uid}`)
       .then(async savedRecipes => {
         if(savedRecipes !== null && isMounted) {
           const parsedRecipes = await JSON.parse(savedRecipes);
           setRecipes(parsedRecipes);
           setIsGenerated(true);
-        }
+        }  
       });
+      setLoading(false);
     });
     
     return () => {
@@ -204,9 +420,12 @@ const GenerateWeeklist = ({navigation}) => {
                     id={recipes[0].id}
                     indexList={0}
                     deleteFromList={deleteFromList}
+                    addToFavorites={addToFavorites}
+                    deleteFromFavorites={deleteFromFavorites}
+                    favorites={favorites.data.recipes}
                   />
                 ) : (
-                  <EmptyRecipeCard />
+                  <EmptyRecipeCard indexList={0} reload={onReloadPress} />
                 )}
                 {recipes[1] ? (
                   <RecipeCard
@@ -214,9 +433,12 @@ const GenerateWeeklist = ({navigation}) => {
                     id={recipes[1].id}
                     indexList={1}
                     deleteFromList={deleteFromList}
+                    addToFavorites={addToFavorites}
+                    deleteFromFavorites={deleteFromFavorites}
+                    favorites={favorites.data.recipes}
                   />
                 ) : (
-                  <EmptyRecipeCard />
+                  <EmptyRecipeCard indexList={1} reload={onReloadPress} onShowModalAddRecipePress={onShowModalAddRecipePress}  />
                 )}
               </View>
 
@@ -228,9 +450,12 @@ const GenerateWeeklist = ({navigation}) => {
                     id={recipes[2].id}
                     indexList={2}
                     deleteFromList={deleteFromList}
+                    addToFavorites={addToFavorites}
+                    deleteFromFavorites={deleteFromFavorites}
+                    favorites={favorites.data.recipes}
                   />
                 ) : (
-                  <EmptyRecipeCard />
+                  <EmptyRecipeCard indexList={2} reload={onReloadPress} />
                 )}
                 {recipes[3] ? (
                   <RecipeCard
@@ -238,9 +463,12 @@ const GenerateWeeklist = ({navigation}) => {
                     id={recipes[3].id}
                     indexList={3}
                     deleteFromList={deleteFromList}
+                    addToFavorites={addToFavorites}
+                    deleteFromFavorites={deleteFromFavorites}
+                    favorites={favorites.data.recipes}
                   />
                 ) : (
-                  <EmptyRecipeCard />
+                  <EmptyRecipeCard indexList={3} reload={onReloadPress} />
                 )}
               </View>
 
@@ -252,9 +480,12 @@ const GenerateWeeklist = ({navigation}) => {
                     id={recipes[4].id}
                     indexList={4}
                     deleteFromList={deleteFromList}
+                    addToFavorites={addToFavorites}
+                    deleteFromFavorites={deleteFromFavorites}
+                    favorites={favorites.data.recipes}
                   />
                 ) : (
-                  <EmptyRecipeCard />
+                  <EmptyRecipeCard indexList={4} reload={onReloadPress} />
                 )}
                 {recipes[5] ? (
                   <RecipeCard
@@ -262,9 +493,12 @@ const GenerateWeeklist = ({navigation}) => {
                     id={recipes[5].id}
                     indexList={5}
                     deleteFromList={deleteFromList}
+                    addToFavorites={addToFavorites}
+                    deleteFromFavorites={deleteFromFavorites}
+                    favorites={favorites.data.recipes}
                   />
                 ) : (
-                  <EmptyRecipeCard />
+                  <EmptyRecipeCard indexList={5} reload={onReloadPress} />
                 )}
               </View>
 
@@ -276,9 +510,12 @@ const GenerateWeeklist = ({navigation}) => {
                     id={recipes[6].id}
                     indexList={6}
                     deleteFromList={deleteFromList}
+                    addToFavorites={addToFavorites}
+                    deleteFromFavorites={deleteFromFavorites}
+                    favorites={favorites.data.recipes}
                   />
                 ) : (
-                  <EmptyRecipeCard />
+                  <EmptyRecipeCard indexList={6} reload={onReloadPress} />
                 )}
                 {recipes[7] ? (
                   <RecipeCard
@@ -286,9 +523,12 @@ const GenerateWeeklist = ({navigation}) => {
                     id={recipes[7].id}
                     indexList={7}
                     deleteFromList={deleteFromList}
+                    addToFavorites={addToFavorites}
+                    deleteFromFavorites={deleteFromFavorites}
+                    favorites={favorites.data.recipes}
                   />
                 ) : (
-                  <EmptyRecipeCard />
+                  <EmptyRecipeCard indexList={7} reload={onReloadPress} />
                 )}
               </View>
 
@@ -300,9 +540,12 @@ const GenerateWeeklist = ({navigation}) => {
                     id={recipes[8].id}
                     indexList={8}
                     deleteFromList={deleteFromList}
+                    addToFavorites={addToFavorites}
+                    deleteFromFavorites={deleteFromFavorites}
+                    favorites={favorites.data.recipes}
                   />
                 ) : (
-                  <EmptyRecipeCard />
+                  <EmptyRecipeCard indexList={8} reload={onReloadPress} />
                 )}
                 {recipes[9] ? (
                   <RecipeCard
@@ -310,9 +553,12 @@ const GenerateWeeklist = ({navigation}) => {
                     id={recipes[9].id}
                     indexList={9}
                     deleteFromList={deleteFromList}
+                    addToFavorites={addToFavorites}
+                    deleteFromFavorites={deleteFromFavorites}
+                    favorites={favorites.data.recipes}
                   />
                 ) : (
-                  <EmptyRecipeCard />
+                  <EmptyRecipeCard indexList={9} reload={onReloadPress} />
                 )}
               </View>
 
@@ -324,9 +570,12 @@ const GenerateWeeklist = ({navigation}) => {
                     id={recipes[10].id}
                     indexList={10}
                     deleteFromList={deleteFromList}
+                    addToFavorites={addToFavorites}
+                    deleteFromFavorites={deleteFromFavorites}
+                    favorites={favorites.data.recipes}
                   />
                 ) : (
-                  <EmptyRecipeCard />
+                  <EmptyRecipeCard indexList={10} reload={onReloadPress} />
                 )}
                 {recipes[11] ? (
                   <RecipeCard
@@ -334,9 +583,12 @@ const GenerateWeeklist = ({navigation}) => {
                     id={recipes[11].id}
                     indexList={11}
                     deleteFromList={deleteFromList}
+                    addToFavorites={addToFavorites}
+                    deleteFromFavorites={deleteFromFavorites}
+                    favorites={favorites.data.recipes}
                   />
                 ) : (
-                  <EmptyRecipeCard />
+                  <EmptyRecipeCard indexList={11} reload={onReloadPress} />
                 )}
               </View>
 
@@ -348,9 +600,12 @@ const GenerateWeeklist = ({navigation}) => {
                     id={recipes[12].id}
                     indexList={12}
                     deleteFromList={deleteFromList}
+                    addToFavorites={addToFavorites}
+                    deleteFromFavorites={deleteFromFavorites}
+                    favorites={favorites.data.recipes}
                   />
                 ) : (
-                  <EmptyRecipeCard />
+                  <EmptyRecipeCard indexList={12} reload={onReloadPress} />
                 )}
                 {recipes[13] ? (
                   <RecipeCard
@@ -358,9 +613,12 @@ const GenerateWeeklist = ({navigation}) => {
                     id={recipes[13].id}
                     indexList={13}
                     deleteFromList={deleteFromList}
+                    addToFavorites={addToFavorites}
+                    deleteFromFavorites={deleteFromFavorites}
+                    favorites={favorites.data.recipes}
                   />
                 ) : (
-                  <EmptyRecipeCard />
+                  <EmptyRecipeCard indexList={13} reload={onReloadPress} onShowModalAddRecipePress={onShowModalAddRecipePress} />
                 )}
               </View>
 
@@ -371,6 +629,15 @@ const GenerateWeeklist = ({navigation}) => {
               />
             </>
           )}
+          <PremiumModal showModalPremium={showModalPremium} onHidePremiumPress={onHidePremiumPress} />
+          <AddRecipeModal 
+            showModalAddRecipes={showModalAddRecipe} 
+            onHideAddModalPress={onHideAddModalPress} 
+            myRecipes={myRecipes?.data} 
+            favorites={favorites?.data.recipes} 
+            add={onAddPress}
+            indexList={tempoIndex}
+          />
           </View>
         ) : (
           <ActivityIndicator size="large" color="#DA4167" style={gs.loading} />

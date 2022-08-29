@@ -1,13 +1,7 @@
 import React, { useEffect, useRef } from 'react';
 import { StyleSheet, Text, View, TouchableOpacity, Alert } from 'react-native';
 import Modal from "react-native-modal";
-import axios from 'axios';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useNavigation } from '@react-navigation/native';
-
-import { apiUrl } from '../../../apiConfig';
-import { auth, firebase } from '../../../firebase';
-const gs = require ('../../globals/styles/GlobalStyle');
 
 const OptionsModal = ({showModalOptions = false, onHideOptionsPress, data, id, onDeleteConfirm}) => {
   const mounted = useRef(false);

@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, View, ScrollView } from 'react-native';
+import { StyleSheet, View, ScrollView, Alert } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { useForm } from 'react-hook-form';
 
@@ -16,7 +16,30 @@ const SignIn = () => {
   const onSignInPress = (data) => {
     auth
     .signInWithEmailAndPassword(data.email, data.password)
-    .catch(error => alert(error.message))
+    .catch(error => {
+      console.log(error.code)
+      if(error.code == "auth/user-not-found") {
+        Alert.alert(
+          "Quelque chose s'est mal passé...",
+          "Les identifiants sont incorrects.",
+          [
+            {
+              text: "Ok"
+            }
+          ]
+        );
+      } else {
+        Alert.alert(
+          "Quelque chose s'est mal passé...",
+          "Il y a un problème avec votre connexion ou nos serveurs, veuillez réessayer plus tard.",
+          [
+            {
+              text: "Ok"
+            }
+          ]
+        );
+      }
+    })
   }
 
   const onForgotPasswordPress = () => {
@@ -29,7 +52,7 @@ const SignIn = () => {
 
   return (
     <ScrollView>
-      <View style={gs.container}>
+      <View style={[gs.container, {paddingTop: 80}]}>
         <CustomInput 
           name="email"
           placeholder="Adresse e-mail"
@@ -68,9 +91,5 @@ const SignIn = () => {
     </ScrollView>
   );
 }
-
-const styles = StyleSheet.create({
-
-});
 
 export default SignIn;

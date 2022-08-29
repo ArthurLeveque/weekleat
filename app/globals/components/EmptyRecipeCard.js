@@ -1,12 +1,28 @@
 import React from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import { MaterialCommunityIcons } from '@expo/vector-icons';
+import { MaterialCommunityIcons, Entypo, Ionicons } from '@expo/vector-icons';
+import { useRoute } from '@react-navigation/native';
 
+const EmptyRecipeCard = ({indexList, reload, onShowModalAddRecipePress}) => {
+  const route = useRoute();
 
-const EmptyRecipeCard = ({onPress, label, type, disabled = false}) => {
+  const showAddModal = () => {
+    onShowModalAddRecipePress(indexList);
+  }
+
   return ( 
     <View style={styles.card}>
+      {route.name === "GenerateWeeklist"  &&
+        <TouchableOpacity onPress={showAddModal}>
+          <Entypo name="add-to-list" color="#FBFBFB" size={25} />
+        </TouchableOpacity>
+      }
       <MaterialCommunityIcons name="silverware-fork-knife" size={40} color="#FBFBFB" style={styles.icons} />
+      {route.name === "GenerateWeeklist"  &&
+        <TouchableOpacity onPress={() => reload(indexList)}>
+          <Ionicons name="reload" color="#FBFBFB" size={25} />
+        </TouchableOpacity>
+      }
     </View>
   );
 }
@@ -18,8 +34,9 @@ const styles = StyleSheet.create({
     minHeight: 105,
     maxHeight: 105,
     backgroundColor: "#DA4167",
-    justifyContent: "center",
-    alignItems: "center"
+    justifyContent: "space-around",
+    alignItems: "center",
+    flexDirection: "row"
   }
 });
 

@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, Alert } from 'react-native';
+import { Alert } from 'react-native';
 import { createDrawerNavigator, DrawerContentScrollView, DrawerItemList, DrawerItem } from '@react-navigation/drawer';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { auth } from '../../firebase';
@@ -9,10 +9,11 @@ import Home from '../screens/Home';
 import AddRecipe from '../screens/recipes/AddRecipe';
 import MyRecipes from '../screens/recipes/MyRecipes';
 import EditRecipe from '../screens/recipes/EditRecipe';
-import MyWeekList from '../screens/weeklist/MyWeeklist';
+import MyWeeklist from '../screens/weeklist/MyWeeklist';
 import GenerateWeeklist from '../screens/weeklist/GenerateWeeklist';
 import PremiumPresentation from '../screens/premium/PremiumPresentation';
 import PremiumPayment from '../screens/premium/PremiumPayment';
+import MyFavorites from '../screens/favorites/MyFavorites';
 
 const Drawer = createDrawerNavigator();
 const Stack = createNativeStackNavigator();
@@ -28,7 +29,7 @@ const AppStack = () => {
         },
         { text: "Oui", onPress: async() => {
           await auth.signOut();
-          await AsyncStorage.multiRemove(['weekleat-recipes', 'weekleat-weeklist']);
+          await AsyncStorage.multiRemove(['weekleat-recipes', 'weekleat-weeklist', 'weekleat-favorites']);
         }}
       ]
     );
@@ -47,7 +48,7 @@ const AppStack = () => {
   function Weeklist() {
     return (
       <Stack.Navigator screenOptions={{headerShown: false}}>
-        <Stack.Screen name="MyWeekList" component={MyWeekList} />
+        <Stack.Screen name="MyWeeklist" component={MyWeeklist} />
         <Stack.Screen name="GenerateWeeklist" component={GenerateWeeklist} />
       </Stack.Navigator>
     );
@@ -58,6 +59,14 @@ const AppStack = () => {
       <Stack.Navigator screenOptions={{headerShown: false}}>
         <Stack.Screen name="PremiumPresentation" component={PremiumPresentation} />
         <Stack.Screen name="PremiumPayment" component={PremiumPayment} />
+      </Stack.Navigator>
+    );
+  }
+
+  function Favorites() {
+    return (
+      <Stack.Navigator screenOptions={{headerShown: false}}>
+        <Stack.Screen name="MyFavorites" component={MyFavorites} />
       </Stack.Navigator>
     );
   }
@@ -88,13 +97,10 @@ const AppStack = () => {
       <Drawer.Screen name="Home" component={Home} options={{title: "Accueil"}} />
       <Drawer.Screen name="Weeklist" component={Weeklist} options={{title: "Ma weekliste"}} />
       <Drawer.Screen name="Recipes" component={Recipes} options={{title: "Mes recettes"}} />
+      <Drawer.Screen name="Favorites" component={Favorites} options={{title: "Mes favorites"}} />
       <Drawer.Screen name="Premium" component={Premium} options={{title: "Weekleat premium"}} />
     </Drawer.Navigator>
   );
 }
-
-const styles = StyleSheet.create({
-
-});
 
 export default AppStack;

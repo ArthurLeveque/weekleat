@@ -38,7 +38,7 @@ const PremiumPresentation = ({navigation}) => {
           const yearEnd = dataDateEnd.getFullYear();
           setDateEnd(`${dayEnd}/${monthEnd}/${yearEnd}`);
 
-          setStatus(response.data.collection_method);
+          setStatus(response.data.status);
         }
       }
       setLoading(false);

@@ -53,7 +53,7 @@ const PremiumPayment = ({navigation}) => {
         billingDetails: billingDetails
       })
       .then(() => {
-        navigation.navigate("Home");
+        navigation.navigate("PremiumPresentation");
       })
       .catch((e) => {
         console.log(e);
@@ -86,6 +86,8 @@ const PremiumPayment = ({navigation}) => {
     <StripeProvider publishableKey={publishableKey}>
       <ScrollView>
         <View style={gs.container}>
+          <Text style={[gs.text, {marginBottom: 5}]}>L'abonnement à Weekleat Premium est de 3,99€ par mois. Vous serez prévelvé automatiquement chaque mois. Vous pouvez cependant annuler le prélèvement automatique à tout moment.</Text>
+
           <CustomInputWithLabel
               name="name"
               label="Votre nom et prénom *"
