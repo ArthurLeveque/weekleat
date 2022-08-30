@@ -1,10 +1,11 @@
 import React from 'react';
-import { StyleSheet, View, Text } from 'react-native';
+import { StyleSheet, View, Text, Alert } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { useForm } from 'react-hook-form';
 
 import CustomButton from '../../globals/components/CustomButton';
 import CustomInput from '../../globals/components/CustomInput';
+import { auth } from '../../../firebase';
 
 const gs = require ('../../globals/styles/GlobalStyle');
 
@@ -14,9 +15,34 @@ const ForgotPassword = () => {
   const navigation = useNavigation();
   const {control, handleSubmit} = useForm();
 
-  const onSendResetPasswordPress = (data) => {
-    // TODO
-    navigation.navigate("ForgotPasswordConfirm");
+  const onSendResetPasswordPress = async (data) => {
+    await auth.sendPasswordResetEmail(data.email)
+    .then(() => navigation.navigate("ForgotPasswordConfirm"))
+    .catch((e) => {
+      console.log(e.code)
+      if(e.code == "auth/user-not-found") {
+        Alert.alert(
+          "Quelque chose s'est mal passé...",
+          "L'adresse renseignée ne correspond à aucun compte.",
+          [
+            {
+              text: "Ok"
+            }
+          ]
+        );
+      } else {
+        Alert.alert(
+          "Quelque chose s'est mal passé...",
+          "Il y a un problème avec votre connexion ou nos serveurs, veuillez réessayer plus tard.",
+          [
+            {
+              text: "Ok"
+            }
+          ]
+        );
+      }
+    })
+    
   }
 
   const onReturnToSignInPress = () => {

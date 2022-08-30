@@ -101,7 +101,7 @@ const SignUp = () => {
           type="primary"
         />
 
-        <Text style={styles.privacy}>En vous inscrivant, vous confirmez avoir lu, compris et accepter les <Text style={styles.link} onPress={onTermsOfUsePress}>Conditions d'utilisation</Text> et la <Text style={styles.link} onPress={onPrivacyPolicyPress}>Politique de confidentialité</Text></Text>
+        <Text style={styles.privacy}>En vous inscrivant, vous confirmez avoir lu, compris et accepter les <Text style={styles.link} onPress={() => navigation.navigate("TermsOfUse")}>Conditions d'utilisation</Text> et la <Text style={styles.link} onPress={() => navigation.navigate("PrivacyPolicy")}>Politique de confidentialité</Text></Text>
 
         <CustomButton 
           label="Retour à la connexion"

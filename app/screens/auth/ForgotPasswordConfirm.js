@@ -29,16 +29,6 @@ const ForgotPasswordConfirm = () => {
 }
 
 const styles = StyleSheet.create({
-  container: {
-    alignItems: "center"
-  },
-  title: {
-    fontSize: 30,
-    color: "#DA4167",
-    fontWeight: "bold",
-    alignItems: "center",
-    marginVertical: 30
-  },
   text: {
     marginBottom: 30
   }
