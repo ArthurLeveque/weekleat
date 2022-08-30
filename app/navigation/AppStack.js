@@ -14,6 +14,9 @@ import GenerateWeeklist from '../screens/weeklist/GenerateWeeklist';
 import PremiumPresentation from '../screens/premium/PremiumPresentation';
 import PremiumPayment from '../screens/premium/PremiumPayment';
 import MyFavorites from '../screens/favorites/MyFavorites';
+import IndexOptions from '../screens/options/IndexOptions';
+import ChangePassword from '../screens/options/ChangePassword';
+import DeleteAccount from '../screens/options/DeleteAccount';
 
 const Drawer = createDrawerNavigator();
 const Stack = createNativeStackNavigator();
@@ -71,6 +74,16 @@ const AppStack = () => {
     );
   }
 
+  function Options() {
+    return (
+      <Stack.Navigator screenOptions={{headerShown: false}}>
+        <Stack.Screen name="IndexOptions" component={IndexOptions} />
+        <Stack.Screen name="ChangePassword" component={ChangePassword} />
+        <Stack.Screen name="DeleteAccount" component={DeleteAccount} />
+      </Stack.Navigator>
+    );
+  }
+
   return (
     <Drawer.Navigator 
       useLegacyImplementation={true} 
@@ -99,6 +112,7 @@ const AppStack = () => {
       <Drawer.Screen name="Recipes" component={Recipes} options={{title: "Mes recettes"}} />
       <Drawer.Screen name="Favorites" component={Favorites} options={{title: "Mes favorites"}} />
       <Drawer.Screen name="Premium" component={Premium} options={{title: "Weekleat premium"}} />
+      <Drawer.Screen name="Options" component={Options} options={{title: "Options"}} />
     </Drawer.Navigator>
   );
 }

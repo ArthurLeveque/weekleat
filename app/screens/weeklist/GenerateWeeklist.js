@@ -310,9 +310,16 @@ const GenerateWeeklist = ({navigation}) => {
     })
   }
 
-  const onShowModalAddRecipePress = (index) => {
-    setShowModalAddRecipe(!showModalAddRecipe);
-    setTempoIndex(index);
+  const onShowModalAddRecipePress = async (index) => {
+     // Check if user is subscribed
+     const isSubscribed = await checkUserSubscription();
+     // If not subscribed, show the premium modal, else reload the recipe
+     if(!isSubscribed) {
+       setShowModalPremium(true);
+     } else {
+      setShowModalAddRecipe(!showModalAddRecipe);
+      setTempoIndex(index);
+     }
   }
 
   const onHideAddModalPress = () => {
@@ -425,7 +432,7 @@ const GenerateWeeklist = ({navigation}) => {
                     favorites={favorites.data.recipes}
                   />
                 ) : (
-                  <EmptyRecipeCard indexList={0} reload={onReloadPress} />
+                  <EmptyRecipeCard indexList={0} reload={onReloadPress} onShowModalAddRecipePress={onShowModalAddRecipePress} />
                 )}
                 {recipes[1] ? (
                   <RecipeCard
@@ -455,7 +462,7 @@ const GenerateWeeklist = ({navigation}) => {
                     favorites={favorites.data.recipes}
                   />
                 ) : (
-                  <EmptyRecipeCard indexList={2} reload={onReloadPress} />
+                  <EmptyRecipeCard indexList={2} reload={onReloadPress} onShowModalAddRecipePress={onShowModalAddRecipePress} />
                 )}
                 {recipes[3] ? (
                   <RecipeCard
@@ -468,7 +475,7 @@ const GenerateWeeklist = ({navigation}) => {
                     favorites={favorites.data.recipes}
                   />
                 ) : (
-                  <EmptyRecipeCard indexList={3} reload={onReloadPress} />
+                  <EmptyRecipeCard indexList={3} reload={onReloadPress} onShowModalAddRecipePress={onShowModalAddRecipePress} />
                 )}
               </View>
 
@@ -485,7 +492,7 @@ const GenerateWeeklist = ({navigation}) => {
                     favorites={favorites.data.recipes}
                   />
                 ) : (
-                  <EmptyRecipeCard indexList={4} reload={onReloadPress} />
+                  <EmptyRecipeCard indexList={4} reload={onReloadPress} onShowModalAddRecipePress={onShowModalAddRecipePress} />
                 )}
                 {recipes[5] ? (
                   <RecipeCard
@@ -498,7 +505,7 @@ const GenerateWeeklist = ({navigation}) => {
                     favorites={favorites.data.recipes}
                   />
                 ) : (
-                  <EmptyRecipeCard indexList={5} reload={onReloadPress} />
+                  <EmptyRecipeCard indexList={5} reload={onReloadPress} onShowModalAddRecipePress={onShowModalAddRecipePress} />
                 )}
               </View>
 
@@ -515,7 +522,7 @@ const GenerateWeeklist = ({navigation}) => {
                     favorites={favorites.data.recipes}
                   />
                 ) : (
-                  <EmptyRecipeCard indexList={6} reload={onReloadPress} />
+                  <EmptyRecipeCard indexList={6} reload={onReloadPress} onShowModalAddRecipePress={onShowModalAddRecipePress} />
                 )}
                 {recipes[7] ? (
                   <RecipeCard
@@ -528,7 +535,7 @@ const GenerateWeeklist = ({navigation}) => {
                     favorites={favorites.data.recipes}
                   />
                 ) : (
-                  <EmptyRecipeCard indexList={7} reload={onReloadPress} />
+                  <EmptyRecipeCard indexList={7} reload={onReloadPress} onShowModalAddRecipePress={onShowModalAddRecipePress} />
                 )}
               </View>
 
@@ -545,7 +552,7 @@ const GenerateWeeklist = ({navigation}) => {
                     favorites={favorites.data.recipes}
                   />
                 ) : (
-                  <EmptyRecipeCard indexList={8} reload={onReloadPress} />
+                  <EmptyRecipeCard indexList={8} reload={onReloadPress} onShowModalAddRecipePress={onShowModalAddRecipePress} />
                 )}
                 {recipes[9] ? (
                   <RecipeCard
@@ -558,7 +565,7 @@ const GenerateWeeklist = ({navigation}) => {
                     favorites={favorites.data.recipes}
                   />
                 ) : (
-                  <EmptyRecipeCard indexList={9} reload={onReloadPress} />
+                  <EmptyRecipeCard indexList={9} reload={onReloadPress} onShowModalAddRecipePress={onShowModalAddRecipePress} />
                 )}
               </View>
 
@@ -575,7 +582,7 @@ const GenerateWeeklist = ({navigation}) => {
                     favorites={favorites.data.recipes}
                   />
                 ) : (
-                  <EmptyRecipeCard indexList={10} reload={onReloadPress} />
+                  <EmptyRecipeCard indexList={10} reload={onReloadPress} onShowModalAddRecipePress={onShowModalAddRecipePress} />
                 )}
                 {recipes[11] ? (
                   <RecipeCard
@@ -588,7 +595,7 @@ const GenerateWeeklist = ({navigation}) => {
                     favorites={favorites.data.recipes}
                   />
                 ) : (
-                  <EmptyRecipeCard indexList={11} reload={onReloadPress} />
+                  <EmptyRecipeCard indexList={11} reload={onReloadPress} onShowModalAddRecipePress={onShowModalAddRecipePress} />
                 )}
               </View>
 
@@ -605,7 +612,7 @@ const GenerateWeeklist = ({navigation}) => {
                     favorites={favorites.data.recipes}
                   />
                 ) : (
-                  <EmptyRecipeCard indexList={12} reload={onReloadPress} />
+                  <EmptyRecipeCard indexList={12} reload={onReloadPress} onShowModalAddRecipePress={onShowModalAddRecipePress} />
                 )}
                 {recipes[13] ? (
                   <RecipeCard

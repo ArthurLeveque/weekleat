@@ -46,14 +46,6 @@ const SignUp = () => {
     })
   }
 
-  const onTermsOfUsePress = () => {
-    // TODO
-  }
-  
-  const onPrivacyPolicyPress = () => {
-    // TODO
-  }
-
   const onReturnToSignInPress = () => {
     navigation.navigate("SignIn");
   }
@@ -116,13 +108,6 @@ const SignUp = () => {
 const styles = StyleSheet.create({
   container: {
     alignItems: "center"  
-  },
-  title: {
-    fontSize: 30,
-    color: "#DA4167",
-    fontWeight: "bold",
-    alignItems: "center",
-    marginVertical: 30
   },
   privacy: {
     color: "#0B090A",

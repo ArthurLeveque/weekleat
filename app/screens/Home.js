@@ -61,6 +61,7 @@ const Home = ({navigation}) => {
                 data: data
               }
               await AsyncStorage.setItem("weekleat-weeklist", JSON.stringify(responseData));
+              setWeeklist(responseData);
             })
             .catch((e) => {
               console.log(e);
@@ -74,7 +75,6 @@ const Home = ({navigation}) => {
                 ]
               );
             })
-            setWeeklist(data);
           }
         });
       }
@@ -192,7 +192,7 @@ const Home = ({navigation}) => {
         <View style={gs.container}>
           {weeklist &&
             <>
-              {Date.parse(weeklist.data.endDate) < Date.parse(currentDate) || weeklist.endDate === "unknown" ? (
+              {Date.parse(weeklist.data.endDate) < Date.parse(currentDate) || weeklist.data.endDate === "unknown" ? (
                 <>
                   <Text style={styles.text}>Vous n'avez pas encore de Weekliste cette semaine !</Text>
                   <CustomButton 
@@ -207,7 +207,7 @@ const Home = ({navigation}) => {
 
                   <View style={styles.day}>
                     <Text style={styles.dayTxt}>Jour {(Date.parse(currentDate) - Date.parse(weeklist.data.startDate)) / (1000 * 60 * 60 * 24) + 1}</Text>
-                    {weeklist.data.recipes.map((recipe, index) => {
+                    {weeklist.data.recipes?.map((recipe, index) => {
                       if(
                         index === ((Date.parse(currentDate) - Date.parse(weeklist.data.startDate)) / (1000 * 60 * 60 * 24)) * 2
                         || index === ((Date.parse(currentDate) - Date.parse(weeklist.data.startDate)) / (1000 * 60 * 60 * 24)) * 2 + 1

@@ -61,6 +61,7 @@ const MyWeekList = ({navigation}) => {
                 data: data
               }
               await AsyncStorage.setItem("weekleat-weeklist", JSON.stringify(responseData));
+              setWeeklist(responseData);
             })
             .catch((e) => {
               console.log(e);
@@ -74,7 +75,6 @@ const MyWeekList = ({navigation}) => {
                 ]
               );
             })
-            setWeeklist(data);
           }
         });
       }
