@@ -1,10 +1,12 @@
 import React, {useState, useEffect} from 'react';
-import { StyleSheet, View, Text, ScrollView, Alert } from 'react-native';
+import { StyleSheet, View, Text, ScrollView, Alert, ActivityIndicator } from 'react-native';
 import { auth, firebase } from '../../firebase';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
 
 import CustomButton from '../globals/components/CustomButton';
+import RecipeCard from '../globals/components/RecipeCard';
+import EmptyRecipeCard from '../globals/components/EmptyRecipeCard';
 import { apiUrl } from '../../apiConfig';
 
 const gs = require ('../globals/styles/GlobalStyle');
@@ -13,6 +15,7 @@ const Home = ({navigation}) => {
   const [loading, setLoading] = useState(false);
   const [weeklist, setWeeklist] = useState();
   const [currentDate, setCurrentDate] = useState();
+  const [dayNumber, setDayNumber] = useState(0);
 
   const getUserWeeklist = async () => {
     await AsyncStorage.getItem("weekleat-weeklist")
@@ -81,6 +84,10 @@ const Home = ({navigation}) => {
     const month = date.getMonth() + 1;
     const year = date.getFullYear();
     setCurrentDate(`${year}/${month}/${day}`);
+
+    if(weeklist !== undefined && weeklist.data && weeklist.data.startDate !== "unknown") {
+      setDayNumber((Date.parse(`${year}/${month}/${day}`) - Date.parse(weeklist.data.startDate)) / (1000 * 60 * 60 * 24) + 1);
+    }
   }
 
   const initRecipes = async () => {
@@ -181,99 +188,54 @@ const Home = ({navigation}) => {
 
   return (
     <ScrollView>
-      <View style={gs.container}>
-        {weeklist &&
-          <>
-            {Date.parse(weeklist.endDate) < Date.parse(currentDate) || weeklist.endDate === "unknown" ? (
-              <>
-                <Text style={styles.text}>Vous n'avez pas encore de Weekliste cette semaine !</Text>
-                <CustomButton 
-                  label="Générer une weekliste"
-                  onPress={() => { navigation.navigate("Weeklist", {screen: "GenerateWeeklist"})}}
-                  type="primary"
-                />
-              </>
-            ) : (
-              <></>
-            )}
-          </>
-        }
+      {!loading ? (
+        <View style={gs.container}>
+          {weeklist &&
+            <>
+              {Date.parse(weeklist.data.endDate) < Date.parse(currentDate) || weeklist.endDate === "unknown" ? (
+                <>
+                  <Text style={styles.text}>Vous n'avez pas encore de Weekliste cette semaine !</Text>
+                  <CustomButton 
+                    label="Générer une weekliste"
+                    onPress={() => { navigation.navigate("Weeklist", {screen: "GenerateWeeklist"})}}
+                    type="primary"
+                  />
+                </>
+              ) : (
+                <>
+                  <Text style={gs.title}>Mon menu aujourd'hui</Text>
 
-          <CustomButton 
-            label="Storage"
-            onPress={async () => {
-              await AsyncStorage.getItem("weekleat-recipes")
-              .then(pouet => {
-                const currentUser = JSON.parse(pouet);
-                console.log(currentUser);
-              })
-            }}
-            type="primary"
-          />
-
-          <CustomButton 
-            label="Add storage"
-            onPress={async () => {
-              const value = {
-                name: "Innocent"
-              };
-              await AsyncStorage.getItem("weekleat-recipes")
-              .then(async pouet => {
-                var euh = JSON.parse(pouet) || []
-                euh.push(value)
-                await AsyncStorage.setItem("weekleat-recipes", JSON.stringify(euh))
-                .catch(err => {
-                  console.log(err)
-                })
-              })
-              
-            }}
-            type="primary"
-          />
-
-          <CustomButton 
-            label="Create storage"
-            onPress={async () => {
-              firebase.storage().ref().child("https://firebasestorage.googleapis.com/v0/b/weekleat.appspot.com/o/145555b1c0123758b6e522c7c2360906.jpg?alt=media&token=2aa7c800-39a6-4bd0-8bec-7222841ef8bb").delete();
-            }}
-            type="primary"
-          />
-
-          <CustomButton 
-            label="Vider storage"
-            onPress={async () => {
-              await AsyncStorage.removeItem("weekleat-recipes")
-            }}
-            type="primary"
-          />
-
-          <CustomButton 
-            label="Vider storage weekliste"
-            onPress={async () => {
-              await AsyncStorage.removeItem("weekleat-weeklist")
-            }}
-            type="primary"
-          />
-          <CustomButton 
-            label="Storage weekliste"
-            onPress={async () => {
-              await AsyncStorage.getItem("weekleat-weeklist")
-              .then(pouet => {
-                const currentUser = JSON.parse(pouet);
-                console.log(currentUser);
-              })
-            }}
-            type="primary"
-          />
-          <CustomButton 
-            label="Vider storage favoris"
-            onPress={async () => {
-              await AsyncStorage.removeItem("weekleat-favorites")
-            }}
-            type="primary"
-          />
-
-      </View>
+                  <View style={styles.day}>
+                    <Text style={styles.dayTxt}>Jour {(Date.parse(currentDate) - Date.parse(weeklist.data.startDate)) / (1000 * 60 * 60 * 24) + 1}</Text>
+                    {weeklist.data.recipes.map((recipe, index) => {
+                      if(
+                        index === ((Date.parse(currentDate) - Date.parse(weeklist.data.startDate)) / (1000 * 60 * 60 * 24)) * 2
+                        || index === ((Date.parse(currentDate) - Date.parse(weeklist.data.startDate)) / (1000 * 60 * 60 * 24)) * 2 + 1
+                      ) {
+                        if(weeklist.data.recipes[index]) {
+                          return(
+                            <RecipeCard
+                              data={recipe.data}
+                              id={recipe.id}
+                              key={index}
+                            />
+                          )
+                        } else {
+                          return (
+                            <EmptyRecipeCard key={index} />
+                          )
+                        }
+                      }
+                    })}
+                  </View>
+                </>
+              )}
+            </>
+          }
+        </View>
+      ) : (
+        <ActivityIndicator size="large" color="#DA4167" style={gs.loading} />
+      )}
     </ScrollView>
   );
 }
@@ -282,6 +244,25 @@ const styles = StyleSheet.create({
   text: {
     textAlign: "center",
     marginBottom: 10
+  },
+  day: {
+    padding: 10,
+    backgroundColor: "white",
+    borderRadius: 5,
+    justifyContent: "center",
+    marginVertical: 5
+  },
+  dayTxt: {
+    textAlign: "center",
+    fontWeight: "bold",
+    marginBottom: 5,
+    fontSize: 18
+  },
+  dates: {
+    textAlign: "center",
+    fontWeight: "bold",
+    marginBottom: 10,
+    fontSize: 18
   }
 });
 
