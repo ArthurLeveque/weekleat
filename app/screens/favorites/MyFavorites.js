@@ -1,5 +1,5 @@
 import React, {useState, useEffect} from 'react';
-import { StyleSheet, View, TouchableOpacity, Alert, ActivityIndicator, FlatList } from 'react-native';
+import { View, Alert, ActivityIndicator, FlatList } from 'react-native';
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
@@ -119,11 +119,13 @@ const MyFavorites = ({navigation}) => {
     <View style={{flex: 1}}>
       {!loading ? (
         <View style={gs.container}>
-          <FlatList 
-            data={favorites?.data.recipes}
-            renderItem={renderItem}
-            keyExtractor={(item, index) => index.toString()}
-          />
+          {favorites &&
+            <FlatList 
+              data={favorites.data?.recipes}
+              renderItem={renderItem}
+              keyExtractor={(item, index) => index.toString()}
+            />
+          }
         </View>
       ) : (
         <ActivityIndicator size="large" color="#DA4167" style={gs.loading} />

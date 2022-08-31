@@ -147,7 +147,10 @@ const Home = ({navigation}) => {
             await axios.post(`${apiUrl}/favorites`, {}, headers)
             .then(async (response) => {
               const responseData = {
-                id: response.data
+                id: response.data,
+                data: {
+                  recipes: []
+                }
               }
               await AsyncStorage.setItem("weekleat-favorites", JSON.stringify(responseData));
             })
