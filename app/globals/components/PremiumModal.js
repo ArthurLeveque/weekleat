@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from 'react';
-import { StyleSheet, Text, View, TouchableOpacity, Alert } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
 import Modal from "react-native-modal";
 import { useNavigation } from '@react-navigation/native';
 

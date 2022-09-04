@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, Text, TouchableOpacity, ImageBackground, View, FlatList, ScrollView } from 'react-native';
+import { StyleSheet, Text, TouchableOpacity, ImageBackground, View, FlatList } from 'react-native';
 import { Entypo, MaterialCommunityIcons } from '@expo/vector-icons';
 import Modal from "react-native-modal";
 

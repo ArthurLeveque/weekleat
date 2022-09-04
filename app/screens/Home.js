@@ -1,6 +1,6 @@
 import React, {useState, useEffect} from 'react';
 import { StyleSheet, View, Text, ScrollView, Alert, ActivityIndicator } from 'react-native';
-import { auth, firebase } from '../../firebase';
+import { auth } from '../../firebase';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
 

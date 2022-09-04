@@ -204,7 +204,7 @@ const GenerateWeeklist = ({navigation}) => {
             // get user token for authentificated API route
             const authToken = await auth.currentUser.getIdTokenResult();
             const headers = {headers: {"auth-token": authToken.token}};
-            await axios.post(`${apiUrl}/lists`, {}, headers)
+            await axios.post(`${apiUrl}/favorites`, {}, headers)
             .then(async (response) => {
               const responseData = {
                 id: response.data,

@@ -1,3 +1,3 @@
-const apiUrl = "http://10.0.2.2:5500"
+const apiUrl = "https://weekleat-api.herokuapp.com"
 
 export {apiUrl};
