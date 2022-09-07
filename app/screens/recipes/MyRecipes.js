@@ -27,7 +27,7 @@ const MyRecipes = ({navigation}) => {
         const parsedRecipes = await JSON.parse(localRecipes)
         setRecipes(parsedRecipes)
       } else if (localRecipes === null && recipes === undefined) {
-        console.log("CALL API")
+        console.log("CALL API RECIPES")
         const uid = auth.currentUser.uid;
         const userRecipes = await axios.get(`${apiUrl}/recipes/user/${uid}`)
         .catch(e => {

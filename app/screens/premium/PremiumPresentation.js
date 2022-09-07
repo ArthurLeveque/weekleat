@@ -20,7 +20,7 @@ const PremiumPresentation = ({navigation}) => {
     // get user token for authentificated API route
     const authToken = await auth.currentUser.getIdTokenResult();
     const headers = {headers: {"auth-token": authToken.token}};
-    // Call this route to find/create the customer and create the subscription
+    // If user is subscribed, show his subscription infos
     await axios.get(`${apiUrl}/subscriptions/isSubscribed`, headers)
     .then((response) => {
       if(response) {

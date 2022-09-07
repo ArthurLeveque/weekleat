@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, ScrollView, Alert } from 'react-native';
+import { StyleSheet, View, ScrollView, Alert, Image, Text } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { useForm } from 'react-hook-form';
 
@@ -52,7 +52,12 @@ const SignIn = () => {
 
   return (
     <ScrollView>
-      <View style={[gs.container, {paddingTop: 80}]}>
+      <View style={[gs.container, {paddingTop: 50}]}>
+        <View style={{alignItems: "center"}}>
+          <Image style={styles.logo} source={require('../../../assets/logo-weekleat.png')} />
+          <Text style={styles.title}>Weekleat</Text>
+        </View>
+
         <CustomInput 
           name="email"
           placeholder="Adresse e-mail"
@@ -91,5 +96,21 @@ const SignIn = () => {
     </ScrollView>
   );
 }
+
+const styles = StyleSheet.create({
+  title: {
+    fontSize: 30,
+    color: "#DA4167",
+    fontWeight: "bold",
+    textAlign: "center",
+    marginBottom: 30
+  },
+  logo: {
+    width: "70%",
+    maxWidth: 160,
+    height: 100,
+    marginBottom: -10
+  }
+});
 
 export default SignIn;

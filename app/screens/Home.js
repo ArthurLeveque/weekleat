@@ -15,7 +15,6 @@ const Home = ({navigation}) => {
   const [loading, setLoading] = useState(false);
   const [weeklist, setWeeklist] = useState();
   const [currentDate, setCurrentDate] = useState();
-  const [dayNumber, setDayNumber] = useState(0);
 
   const getUserWeeklist = async () => {
     await AsyncStorage.getItem("weekleat-weeklist")
@@ -33,7 +32,6 @@ const Home = ({navigation}) => {
           setWeeklist(userWeeklist.data)
         })
         .catch(async (e) => {
-          console.log(e.response);
           // if error status is not the good one (402) show error message, else create a weeklist for the user
           if(e.response.status !== 402) {
             Alert.alert(
@@ -84,10 +82,6 @@ const Home = ({navigation}) => {
     const month = date.getMonth() + 1;
     const year = date.getFullYear();
     setCurrentDate(`${year}/${month}/${day}`);
-
-    if(weeklist !== undefined && weeklist.data && weeklist.data.startDate !== "unknown") {
-      setDayNumber((Date.parse(`${year}/${month}/${day}`) - Date.parse(weeklist.data.startDate)) / (1000 * 60 * 60 * 24) + 1);
-    }
   }
 
   const initRecipes = async () => {
