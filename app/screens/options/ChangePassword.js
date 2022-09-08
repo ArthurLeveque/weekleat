@@ -18,6 +18,7 @@ const ChangePassword = ({navigation}) => {
     setLoading(true);
     let user = auth.currentUser;
     let cred = firebase.auth.EmailAuthProvider.credential(user.email, data.password);
+    // reauthenticateWithCredential to avoid problems if user is connected for too long (according to firebase's doc)
     await user.reauthenticateWithCredential(cred)
     .then(async () => {
       user.updatePassword(data.newPassword)

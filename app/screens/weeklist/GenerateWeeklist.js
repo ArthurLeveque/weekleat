@@ -640,7 +640,7 @@ const GenerateWeeklist = ({navigation}) => {
           <AddRecipeModal 
             showModalAddRecipes={showModalAddRecipe} 
             onHideAddModalPress={onHideAddModalPress} 
-            myRecipes={myRecipes?.data} 
+            myRecipes={myRecipes} 
             favorites={favorites?.data.recipes} 
             add={onAddPress}
             indexList={tempoIndex}
